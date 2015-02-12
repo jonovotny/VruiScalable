@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 Methods of class GLWindow:
 **************************/
 
-void GLWindow::initWindow(const char* windowName,bool decorate)
+void GLWindow::initWindow(const char* windowName,bool decorate, std::string filename)
 	{
 	/* Check if the screen index is valid: */
 	if(screen<0||screen>=ScreenCount(context->getDisplay()))
@@ -191,7 +191,7 @@ void GLWindow::initWindow(const char* windowName,bool decorate)
 	#endif
 	
 	/* Initialize the OpenGL context: */
-	context->init(window);
+	context->init(window, filename);
 	}
 
 GLWindow::GLWindow(GLContext* sContext,int sScreen,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate)

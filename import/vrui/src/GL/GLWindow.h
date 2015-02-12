@@ -27,6 +27,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <X11/X.h>
 #include <GL/GLContext.h>
 
+#include <string>
+
 class GLWindow
 	{
 	/* Embedded classes: */
@@ -97,7 +99,7 @@ class GLWindow
 	Misc::CallbackList closeCallbacks; // List of callbacks to be called when the user attempts to close the window
 	
 	/* Private methods: */
-	void initWindow(const char* windowName,bool decorate); // Common part of all constructors
+	void initWindow(const char* windowName,bool decorate, std::string filename); // Common part of all constructors
 	
 	/* Constructors and destructors: */
 	public:
