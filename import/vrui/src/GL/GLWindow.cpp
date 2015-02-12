@@ -203,7 +203,7 @@ GLWindow::GLWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 	initWindow(windowName,decorate, filename);
 	}
 
-GLWindow::GLWindow(const char* displayName,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate,int* visualProperties, std::string filename)
+GLWindow::GLWindow(const char* displayName,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate,std::string filename,int* visualProperties)
 	:context(new GLContext(displayName,visualProperties)),
 	 screen(context->getDefaultScreen()),
 	 windowPos(sWindowPos),fullscreen(windowPos.size[0]==0||windowPos.size[1]==0)
@@ -212,7 +212,7 @@ GLWindow::GLWindow(const char* displayName,const char* windowName,const GLWindow
 	initWindow(windowName,decorate, filename);
 	}
 
-GLWindow::GLWindow(const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate,int* visualProperties, std::string filename)
+GLWindow::GLWindow(const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate,std::string filename,int* visualProperties)
 	:context(new GLContext(0,visualProperties)),
 	 screen(context->getDefaultScreen()),
 	 windowPos(sWindowPos),fullscreen(windowPos.size[0]==0||windowPos.size[1]==0)

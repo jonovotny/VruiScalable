@@ -104,8 +104,8 @@ class GLWindow
 	/* Constructors and destructors: */
 	public:
 	GLWindow(GLContext* sContext,int sScreen,const char* windowName,const WindowPos& sWindowPos,bool decorate, std::string filename); // Creates a window using the given OpenGL context
-	GLWindow(const char* displayName,const char* windowName,const WindowPos& sWindowPos,bool decorate,int* visualProperties =0, std::string filename); // Creates a window by connecting to the given X display
-	GLWindow(const char* windowName,const WindowPos& sWindowPos,bool decorate,int* visualProperties =0, std::string filename); // Ditto; gets the default display name from the environment
+	GLWindow(const char* displayName,const char* windowName,const WindowPos& sWindowPos,bool decorate,std::string filename, int* visualProperties =0); // Creates a window by connecting to the given X display
+	GLWindow(const char* windowName,const WindowPos& sWindowPos,bool decorate,std::string filename, int* visualProperties =0); // Ditto; gets the default display name from the environment
 	GLWindow(GLWindow* source,int sScreen,const char* windowName,const WindowPos& sWindowPos,bool decorate, std::string filename); // Creates a window using the same GL context as the given source window, on the given screen of the source window's display
 	GLWindow(GLWindow* source,const char* windowName,const WindowPos& sWindowPos,bool decorate, std::string filename); // Ditto; uses the same screen as the source window
 	virtual ~GLWindow(void); // Destroys the window and all associated resources
