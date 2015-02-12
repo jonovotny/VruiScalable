@@ -45,6 +45,9 @@ class GLContext:public Threads::RefCounted
 	int depth; // Bit depth of the visual associated with the GLX context
 	GLExtensionManager* extensionManager; // Pointer to an extension manager for this GLX context
 	GLContextData* contextData; // Pointer to an object associating per-context application state with this GLX context
+
+	/* Scalable */
+	EasyBlendSDK_Mesh *gMSDK;
 	
 	/* Constructors and destructors: */
 	public:

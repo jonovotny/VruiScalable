@@ -131,6 +131,9 @@ void GLContext::init(GLXDrawable drawable)
 		/* Create a context data manager: */
 		contextData=new GLContextData(101);
 		}
+		gMSDK = new EasyBlendSDK_Mesh;
+		EasyBlendSDK_Initialize(filename.c_str(), gMSDK);
+
 	}
 
 void GLContext::deinit(void)
