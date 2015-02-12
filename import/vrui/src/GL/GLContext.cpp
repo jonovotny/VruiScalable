@@ -113,7 +113,7 @@ GLContext::~GLContext(void)
 	XCloseDisplay(display);
 	}
 
-void GLContext::init(GLXDrawable drawable)
+void GLContext::init(GLXDrawable drawable, std::string filename)
 	{
 	/* Check if the extension manager already exists: */
 	if(extensionManager==0)

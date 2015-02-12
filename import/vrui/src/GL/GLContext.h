@@ -75,7 +75,7 @@ class GLContext:public Threads::RefCounted
 		{
 		return depth;
 		}
-	void init(GLXDrawable drawable); // Creates the context's extension and context data managers; context will be bound to the given drawable
+	void init(GLXDrawable drawable, std::string filename); // Creates the context's extension and context data managers; context will be bound to the given drawable
 	void deinit(void); // Destroys the context's extension and context data managers; context must be current on some drawable
 	GLExtensionManager& getExtensionManager(void) // Returns the context's extension manager
 		{
