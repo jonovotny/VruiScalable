@@ -159,6 +159,7 @@ void GLContext::makeCurrent(GLXDrawable drawable)
 
 void GLContext::swapBuffers(GLXDrawable drawable)
 	{
+	OpenGLSwap(gMSDK);
 	/* Swap buffers in the given drawable: */
 	glXSwapBuffers(display,drawable);
 	}
