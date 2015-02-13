@@ -343,10 +343,11 @@ struct VruiWindowGroupCreator // Structure defining a group of windows rendered 
 	InputDeviceAdapterMouse* mouseAdapter; // Pointer to the mouse input device adapter to be used for this window group
 	};
 
-bool vruiCreateWindowGroup(const VruiWindowGroupCreator& group)
+bool vruiCreateWindowGroup(const VruiWindowGroupCreator& group, std::vector<std::string> filenames)
 	{
 	VRWindow* firstWindow=0;
 	bool allWindowsOk=true;
+	int i = 0;
 	for(std::vector<VruiWindowGroupCreator::VruiWindow>::const_iterator wIt=group.windows.begin();wIt!=group.windows.end();++wIt)
 		{
 		try
@@ -364,7 +365,7 @@ bool vruiCreateWindowGroup(const VruiWindowGroupCreator& group)
 				int screen=wIt->windowConfigFileSection.retrieveValue<int>("./screen",firstWindow->getScreen());
 				
 				/* Create the new window: */
-				vruiWindows[wIt->windowIndex]=new VRWindow(&firstWindow->getContext(),screen,windowName,wIt->windowConfigFileSection,vruiState,group.mouseAdapter);
+				vruiWindows[wIt->windowIndex]=new VRWindow(&firstWindow->getContext(),screen,windowName,wIt->windowConfigFileSection,vruiState,group.mouseAdapter,filenames[i]);
 				}
 			else
 				{
@@ -375,7 +376,7 @@ bool vruiCreateWindowGroup(const VruiWindowGroupCreator& group)
 				int screen=wIt->windowConfigFileSection.retrieveValue<int>("./screen",context->getDefaultScreen());
 				
 				/* Create the window: */
-				vruiWindows[wIt->windowIndex]=new VRWindow(context.getPointer(),screen,windowName,wIt->windowConfigFileSection,vruiState,group.mouseAdapter);
+				vruiWindows[wIt->windowIndex]=new VRWindow(context.getPointer(),screen,windowName,wIt->windowConfigFileSection,vruiState,group.mouseAdapter,filenames[i]);
 				
 				firstWindow=vruiWindows[wIt->windowIndex];
 				}
@@ -392,6 +393,7 @@ bool vruiCreateWindowGroup(const VruiWindowGroupCreator& group)
 			allWindowsOk=false;
 			break;
 			}
+			i++;
 		}
 	
 	/* Initialize all GLObjects for the first window's context data: */
