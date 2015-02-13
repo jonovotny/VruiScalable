@@ -148,7 +148,7 @@ class VRWindow:public GLWindow
 	/* Constructors and destructors: */
 	public:
 	static GLContext* createContext(const WindowProperties& properties,const Misc::ConfigurationFileSection& configFileSection); // Creates an OpenGL context based on settings from the given window properties and configuration file section
-	VRWindow(GLContext* sContext,int sScreen,const char* windowName,const Misc::ConfigurationFileSection& configFileSection,VruiState* sVruiState,InputDeviceAdapterMouse* sMouseAdapter); // Initializes VR window using given OpenGL context and settings from given configuration file section
+	VRWindow(GLContext* sContext,int sScreen,const char* windowName,const Misc::ConfigurationFileSection& configFileSection,VruiState* sVruiState,InputDeviceAdapterMouse* sMouseAdapter, std::string filename); // Initializes VR window using given OpenGL context and settings from given configuration file section
 	virtual ~VRWindow(void);
 	
 	/* Methods: */
