@@ -35,6 +35,28 @@ GLContext::GLContext(const char* displayName,int* visualProperties)
 	:display(0),visual(0),depth(-1),
 	 extensionManager(0),contextData(0)
 	{
+	/* Define POL filename */
+	int offset[] = {0, 1, 3, 2};
+	std::stringstream sstm;
+	int projNum;
+	
+	for(int nodeNum = 1; nodeNum <= 7; nodeNum++)
+	{
+		for(int xNum = 0; xNum < 4; xNum++)
+		{
+			sstm << "cave00" << nodeNum << ":0." << xNum;
+			if(displayName == sstm.str())
+			{
+				projNum = 38 - 4*(nodeNum) + offset[xNum];
+				sstm.str(std::string());
+				sstm << "/gpfs/home/cavedemo/scalable/cave/ScalableData.pol_" << projNum;
+				filename = sstm.str(); 
+			}
+			//clear stringstream
+			sstm.str(std::string());
+		}
+	}
+
 	/* Open connection to the X server: */
 	display=XOpenDisplay(displayName);
 	if(display==0)
@@ -113,7 +135,7 @@ GLContext::~GLContext(void)
 	XCloseDisplay(display);
 	}
 
-void GLContext::init(GLXDrawable drawable, std::string filename)
+void GLContext::init(GLXDrawable drawable)
 	{
 	/* Check if the extension manager already exists: */
 	if(extensionManager==0)

@@ -46,6 +46,7 @@ class GLContext:public Threads::RefCounted
 	int depth; // Bit depth of the visual associated with the GLX context
 	GLExtensionManager* extensionManager; // Pointer to an extension manager for this GLX context
 	GLContextData* contextData; // Pointer to an object associating per-context application state with this GLX context
+	std::string filename; // POL filename for scalable
 
 	/* Scalable */
 	EasyBlendSDK_Mesh *gMSDK;
@@ -76,7 +77,7 @@ class GLContext:public Threads::RefCounted
 		{
 		return depth;
 		}
-	void init(GLXDrawable drawable, std::string filename); // Creates the context's extension and context data managers; context will be bound to the given drawable
+	void init(GLXDrawable drawable); // Creates the context's extension and context data managers; context will be bound to the given drawable
 	void deinit(void); // Destroys the context's extension and context data managers; context must be current on some drawable
 	GLExtensionManager& getExtensionManager(void) // Returns the context's extension manager
 		{
