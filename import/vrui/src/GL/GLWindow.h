@@ -27,8 +27,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <X11/X.h>
 #include <GL/GLContext.h>
 
-#include <string>
-
 class GLWindow
 	{
 	/* Embedded classes: */
@@ -99,15 +97,15 @@ class GLWindow
 	Misc::CallbackList closeCallbacks; // List of callbacks to be called when the user attempts to close the window
 	
 	/* Private methods: */
-	void initWindow(const char* windowName,bool decorate, std::string filename); // Common part of all constructors
+	void initWindow(const char* windowName,bool decorate); // Common part of all constructors
 	
 	/* Constructors and destructors: */
 	public:
-	GLWindow(GLContext* sContext,int sScreen,const char* windowName,const WindowPos& sWindowPos,bool decorate, std::string filename); // Creates a window using the given OpenGL context
-	GLWindow(const char* displayName,const char* windowName,const WindowPos& sWindowPos,bool decorate,std::string filename, int* visualProperties =0); // Creates a window by connecting to the given X display
-	GLWindow(const char* windowName,const WindowPos& sWindowPos,bool decorate,std::string filename, int* visualProperties =0); // Ditto; gets the default display name from the environment
-	GLWindow(GLWindow* source,int sScreen,const char* windowName,const WindowPos& sWindowPos,bool decorate, std::string filename); // Creates a window using the same GL context as the given source window, on the given screen of the source window's display
-	GLWindow(GLWindow* source,const char* windowName,const WindowPos& sWindowPos,bool decorate, std::string filename); // Ditto; uses the same screen as the source window
+	GLWindow(GLContext* sContext,int sScreen,const char* windowName,const WindowPos& sWindowPos,bool decorate); // Creates a window using the given OpenGL context
+	GLWindow(const char* displayName,const char* windowName,const WindowPos& sWindowPos,bool decorate,int* visualProperties =0); // Creates a window by connecting to the given X display
+	GLWindow(const char* windowName,const WindowPos& sWindowPos,bool decorate,int* visualProperties =0); // Ditto; gets the default display name from the environment
+	GLWindow(GLWindow* source,int sScreen,const char* windowName,const WindowPos& sWindowPos,bool decorate); // Creates a window using the same GL context as the given source window, on the given screen of the source window's display
+	GLWindow(GLWindow* source,const char* windowName,const WindowPos& sWindowPos,bool decorate); // Ditto; uses the same screen as the source window
 	virtual ~GLWindow(void); // Destroys the window and all associated resources
 	
 	/* Methods: */

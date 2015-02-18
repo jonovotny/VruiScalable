@@ -712,11 +712,10 @@ GLContext* VRWindow::createContext(const WindowProperties& properties,const Misc
 	return new GLContext(displayName.empty()?0:displayName.c_str(),visualPropertyList);
 	}
 
-VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const Misc::ConfigurationFileSection& configFileSection,VruiState* sVruiState,InputDeviceAdapterMouse* sMouseAdapter, std::string filename)
+VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const Misc::ConfigurationFileSection& configFileSection,VruiState* sVruiState,InputDeviceAdapterMouse* sMouseAdapter)
 	:GLWindow(sContext,sScreen,windowName,
 	          configFileSection.retrieveValue<GLWindow::WindowPos>("./windowPos",GLWindow::WindowPos(800,600)),
-	          configFileSection.retrieveValue<bool>("./decorate",true),
-	          filename),
+	          configFileSection.retrieveValue<bool>("./decorate",true)),
 	 vruiState(sVruiState),windowGroup(0),
 	 mouseAdapter(sMouseAdapter),
 	 clearBufferMask(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT),

@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 Methods of class GLWindow:
 **************************/
 
-void GLWindow::initWindow(const char* windowName,bool decorate, std::string filename)
+void GLWindow::initWindow(const char* windowName,bool decorate)
 	{
 	/* Check if the screen index is valid: */
 	if(screen<0||screen>=ScreenCount(context->getDisplay()))
@@ -191,52 +191,52 @@ void GLWindow::initWindow(const char* windowName,bool decorate, std::string file
 	#endif
 	
 	/* Initialize the OpenGL context: */
-	context->init(window, filename);
+	context->init(window);
 	}
 
-GLWindow::GLWindow(GLContext* sContext,int sScreen,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate, std::string filename)
+GLWindow::GLWindow(GLContext* sContext,int sScreen,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate)
 	:context(sContext),
 	 screen(sScreen),
 	 windowPos(sWindowPos),fullscreen(windowPos.size[0]==0||windowPos.size[1]==0)
 	{
 	/* Call common part of window initialization routine: */
-	initWindow(windowName,decorate, filename);
+	initWindow(windowName,decorate);
 	}
 
-GLWindow::GLWindow(const char* displayName,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate,std::string filename,int* visualProperties)
+GLWindow::GLWindow(const char* displayName,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate,int* visualProperties)
 	:context(new GLContext(displayName,visualProperties)),
 	 screen(context->getDefaultScreen()),
 	 windowPos(sWindowPos),fullscreen(windowPos.size[0]==0||windowPos.size[1]==0)
 	{
 	/* Call common part of window initialization routine: */
-	initWindow(windowName,decorate, filename);
+	initWindow(windowName,decorate);
 	}
 
-GLWindow::GLWindow(const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate,std::string filename,int* visualProperties)
+GLWindow::GLWindow(const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate,int* visualProperties)
 	:context(new GLContext(0,visualProperties)),
 	 screen(context->getDefaultScreen()),
 	 windowPos(sWindowPos),fullscreen(windowPos.size[0]==0||windowPos.size[1]==0)
 	{
 	/* Call common part of window initialization routine: */
-	initWindow(windowName,decorate, filename);
+	initWindow(windowName,decorate);
 	}
 
-GLWindow::GLWindow(GLWindow* source,int sScreen,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate, std::string filename)
+GLWindow::GLWindow(GLWindow* source,int sScreen,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate)
 	:context(source->context),
 	 screen(sScreen),
 	 windowPos(sWindowPos),fullscreen(windowPos.size[0]==0||windowPos.size[1]==0)
 	{
 	/* Call common part of window initialization routine: */
-	initWindow(windowName,decorate, filename);
+	initWindow(windowName,decorate);
 	}
 
-GLWindow::GLWindow(GLWindow* source,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate, std::string filename)
+GLWindow::GLWindow(GLWindow* source,const char* windowName,const GLWindow::WindowPos& sWindowPos,bool decorate)
 	:context(source->context),
 	 screen(source->screen),
 	 windowPos(sWindowPos),fullscreen(windowPos.size[0]==0||windowPos.size[1]==0)
 	{
 	/* Call common part of window initialization routine: */
-	initWindow(windowName,decorate, filename);
+	initWindow(windowName,decorate);
 	}
 
 GLWindow::~GLWindow(void)
