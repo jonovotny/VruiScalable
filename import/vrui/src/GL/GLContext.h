@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <GL/glx.h>
 
 #define _EASYBLENDSDK_LINUX
-#include "/gpfs/home/cavedemo/scalable/ScalableSDK/include/EasyBlendSDK.h"
+#include "EasyBlendSDK.h"
 #include <string>
 
 /* Forward declarations: */

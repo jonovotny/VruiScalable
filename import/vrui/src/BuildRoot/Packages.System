@@ -214,9 +214,9 @@ else
 endif
 
 # The Scalable library package
-SCALABLE_BASEDIR = 
+SCALABLE_BASEDIR = /gpfs/home/cavedemo/scalable/ScalableSDK
 SCALABLE_DEPENDS = 
-SCALABLE_INCLUDE = 
+SCALABLE_INCLUDE = -I/gpfs/home/cavedemo/scalable/ScalableSDK/include
 SCALABLE_LIBDIR  = -L/gpfs/home/cavedemo/scalable/ScalableSDK/lib
 SCALABLE_LIBS    = -lmplEasyBlendSDK
 
