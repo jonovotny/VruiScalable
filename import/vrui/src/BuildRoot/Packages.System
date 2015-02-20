@@ -213,6 +213,13 @@ else
   OPENAL_LIBS    = -lopenal
 endif
 
+# The Scalable library package
+SCALABLE_BASEDIR = 
+SCALABLE_DEPENDS = 
+SCALABLE_INCLUDE = 
+SCALABLE_LIBDIR  = -L/gpfs/home/cavedemo/scalable/ScalableSDK/lib
+SCALABLE_LIBS    = -lmplEasyBlendSDK
+
 #
 # Auto-detect the availability of optional system packages:
 #
