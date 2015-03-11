@@ -49,7 +49,7 @@ GLContext::GLContext(const char* displayName,int* visualProperties)
 		{
 			std::stringstream sstm;
 			sstm.str(std::string());
-			sstm << "/gpfs/home/cavedemo/scalable/cave/ScalableData.pol_" << projNum;
+			sstm << "/gpfs/home/cavedemo/scalable/cave/ScalableData.pol_" << i;
 			filename = sstm.str(); 
 		}
 	}
