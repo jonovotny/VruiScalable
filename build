@@ -1,0 +1,6 @@
+#!/bin/bash
+cd $G/import/vrui
+./build
+cd $G/project/meshviewer
+make all
+make install
