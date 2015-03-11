@@ -1,0 +1,5 @@
+#!/bin/bash
+module load cave
+export G=/users/wm10/scratch/Sandbox
+cd $G
+./install_linux/bin/VRDeviceDaemon
