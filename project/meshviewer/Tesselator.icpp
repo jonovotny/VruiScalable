@@ -1,0 +1,427 @@
+/***********************************************************************
+Tesselator - Helper class to split simple polygons into triangles.
+Copyright (c) 2010 Oliver Kreylos
+***********************************************************************/
+
+#define TESSELATOR_IMPLEMENTATION
+
+#include "Tesselator.h"
+
+#include <Math/Math.h>
+#include <Geometry/PCACalculator.h>
+
+/***************************
+Methods of class Tesselator:
+***************************/
+
+template <class VertexParam>
+inline
+void
+Tesselator<VertexParam>::setMaxNumVertices(
+	typename Tesselator<VertexParam>::Card newMaxNumVertices)
+	{
+	/* Allocate the new data structures: */
+	Index* newPolygonVertexIndices=new Index[newMaxNumVertices];
+	bool* newConcaveFlags=new bool[newMaxNumVertices];
+	Index* newConcaveVertexIndices=new Index[newMaxNumVertices];
+	Index* newTriangleVertexIndices=new Index[(newMaxNumVertices-2)*3];
+	
+	/* Copy over existing data: */
+	for(Card i=0;i<numVertices;++i)
+		{
+		newPolygonVertexIndices[i]=polygonVertexIndices[i];
+		newConcaveFlags[i]=concaveFlags[i];
+		}
+	for(Card i=0;i<numConcaveVertices;++i)
+		newConcaveVertexIndices[i]=concaveVertexIndices[i];
+	for(Card i=0;i<numTriangles*3;++i)
+		newTriangleVertexIndices[i]=triangleVertexIndices[i];
+	
+	/* Replace the existing data structures: */
+	maxNumVertices=newMaxNumVertices;
+	delete[] polygonVertexIndices;
+	polygonVertexIndices=newPolygonVertexIndices;
+	delete[] concaveFlags;
+	concaveFlags=newConcaveFlags;
+	delete[] concaveVertexIndices;
+	concaveVertexIndices=newConcaveVertexIndices;
+	delete[] triangleVertexIndices;
+	triangleVertexIndices=newTriangleVertexIndices;
+	}
+
+
+template <class VertexParam>
+inline
+Tesselator<VertexParam>::Tesselator(
+	typename Tesselator<VertexParam>::Card sMaxNumVertices)
+	:vertices(0),
+	 maxNumVertices(0),polygonVertexIndices(0),concaveFlags(0),
+	 numVertices(0),
+	 concaveVertexIndices(0),numConcaveVertices(0),
+	 triangleVertexIndices(0),numTriangles(0)
+	{
+	/* Initialize the vertex arrays: */
+	setMaxNumVertices(sMaxNumVertices);
+	}
+
+template <class VertexParam>
+inline
+Tesselator<VertexParam>::~Tesselator(
+	void)
+	{
+	delete[] polygonVertexIndices;
+	delete[] concaveFlags;
+	delete[] concaveVertexIndices;
+	delete[] triangleVertexIndices;
+	}
+
+template <class VertexParam>
+inline
+void
+Tesselator<VertexParam>::reset(
+	unsigned int minNumVertices)
+	{
+	/* Reset the data structures: */
+	numVertices=0;
+	numConcaveVertices=0;
+	numTriangles=0;
+	
+	/* Make room in the data structures: */
+	if(maxNumVertices<minNumVertices)
+		setMaxNumVertices(minNumVertices);
+	}
+
+template <class VertexParam>
+inline
+void
+Tesselator<VertexParam>::tesselate(
+	const typename Tesselator<VertexParam>::Vector& planeNormal)
+	{
+	#if 0
+	
+	/* Remove duplicate vertices from the polygon: */
+	Index* writePtr=polygonVertexIndices;
+	Index* lastPtr=polygonVertexIndices+(numVertices-1);
+	for(Index* ptr=polygonVertexIndices;ptr!=polygonVertexIndices+numVertices;++ptr)
+		{
+		/* Check if the current and previous vertex are different: */
+		if(*ptr!=*lastPtr&&vertices[*ptr]!=vertices[*lastPtr])
+			{
+			/* Append the current vertex to the new polygon in-place: */
+			*writePtr=*ptr;
+			++writePtr;
+			}
+		else
+			std::cerr<<"Duplicate vertices removed!"<<std::endl;
+		
+		lastPtr=ptr;
+		}
+	numVertices=writePtr-polygonVertexIndices;
+	
+	#endif
+	
+	/* Check for the trivial triangle case: */
+	if(numVertices==3)
+		{
+		/* Copy the input triangle to the output array: */
+		for(int i=0;i<3;++i)
+			triangleVertexIndices[i]=polygonVertexIndices[i];
+		
+		/* Bail out: */
+		numTriangles=1;
+		return;
+		}
+	
+	/*********************************************************************
+	Reduce the polygon's dimensionality by projecting it into the most
+	closely aligned primary plane:
+	*********************************************************************/
+	
+	#if 1
+	
+	/* Be paranoid -- recalculate the polygon's normal vector: */
+	
+	#if 1
+	
+	Geometry::PCACalculator<3> pca;
+	for(Card i=0;i<numVertices;++i)
+		pca.accumulatePoint(vertices[polygonVertexIndices[i]].position);
+	pca.calcCovariance();
+	double evs[3];
+	pca.calcEigenvalues(evs);
+	Vector faceNormal=pca.calcEigenvector(evs[2]);
+	
+	#else
+	
+	Vector faceNormal=Vector::zero;
+	{
+	Index v0=polygonVertexIndices[numVertices-2];
+	Card i1=numVertices-1;
+	Index v1=polygonVertexIndices[i1];
+	Vector d0=vertices[v1].position-vertices[v0].position;
+	Scalar d0Len=Geometry::mag(d0);
+	for(Card i2=0;i2<numVertices;++i2)
+		{
+		Index v2=polygonVertexIndices[i2];
+		Vector d1=vertices[v2].position-vertices[v1].position;
+		Scalar d1Len=Geometry::mag(d1);
+		
+		/* Calculate the vertex normal, scaled by the corner's angle: */
+		Vector vertexNormal=Geometry::cross(d0,d1);
+		Scalar vnLen=Geometry::mag(vertexNormal)/(d0Len*d1Len);
+		vertexNormal*=Math::asin(vnLen)/vnLen;
+		
+		/* Accumulate the face normal: */
+		faceNormal+=vertexNormal;
+		
+		/* Go to next corner: */
+		d0=d1;
+		d0Len=d1Len;
+		i1=i2;
+		v1=v2;
+		}
+	}
+	#endif
+	
+	#else
+	
+	Vector faceNormal=planeNormal;
+	
+	#endif
+	
+	/* Use the primary 2D plane that is orthogonal to the largest normal vector component for the tesselation procedure: */
+	int primaryAxis=Geometry::findParallelAxis(faceNormal);
+	int a0=(primaryAxis+1)%3;
+	int a1=(primaryAxis+2)%3;
+	if(faceNormal[primaryAxis]<Scalar(0))
+		{
+		/* Flip the secondary axes to preserve the face's winding order: */
+		std::swap(a0,a1);
+		}
+	
+	/* Find all concave vertices: */
+	{
+	Index v0=polygonVertexIndices[numVertices-2];
+	Card i1=numVertices-1;
+	Index v1=polygonVertexIndices[i1];
+	Scalar d0x=vertices[v1].position[a0]-vertices[v0].position[a0];
+	Scalar d0y=vertices[v1].position[a1]-vertices[v0].position[a1];
+	Scalar d0Len=Math::sqrt(d0x*d0x+d0y*d0y);
+	Scalar angle=Scalar(0);
+	for(Card i2=0;i2<numVertices;++i2)
+		{
+		/* Check if the vertex is a concave corner: */
+		Index v2=polygonVertexIndices[i2];
+		Scalar d1x=vertices[v2].position[a0]-vertices[v1].position[a0];
+		Scalar d1y=vertices[v2].position[a1]-vertices[v1].position[a1];
+		Scalar d1Len=Math::sqrt(d1x*d1x+d1y*d1y);
+		if(d0Len>Scalar(0)&&d1Len>Scalar(0))
+			{
+			Scalar dot=(d0x*d1x+d0y*d1y)/(d0Len*d1Len);
+			Scalar a;
+			if(dot<=Scalar(-1))
+				a=Math::Constants<Scalar>::pi;
+			else if(dot>=Scalar(1))
+				a=Scalar(0);
+			else
+				a=Math::acos(dot);
+			Scalar cross=d0x*d1y-d0y*d1x;
+			concaveFlags[i1]=cross<Scalar(0);
+			if(concaveFlags[i1])
+				{
+				concaveVertexIndices[numConcaveVertices]=v1;
+				++numConcaveVertices;
+				angle-=a;
+				}
+			else
+				angle+=a;
+			}
+		else
+			concaveFlags[i1]=false;
+		
+		/* Go to next corner: */
+		d0x=d1x;
+		d0y=d1y;
+		d0Len=d1Len;
+		i1=i2;
+		v1=v2;
+		}
+	
+	/* Check for winding rule: */
+	if(angle<Scalar(0))
+		{
+		/* Oops, the normal vector was wrong. Invert everything: */
+		int ta=a0;
+		a0=a1;
+		a1=ta;
+		numConcaveVertices=0;
+		for(Card i=0;i<numVertices;++i)
+			{
+			concaveFlags[i]=!concaveFlags[i];
+			if(concaveFlags[i])
+				{
+				concaveVertexIndices[numConcaveVertices]=polygonVertexIndices[i];
+				++numConcaveVertices;
+				}
+			}
+		}
+	}
+	
+	/* Cut off "ears" until there are no more concave corners: */
+	Card i0=numVertices-1;
+	Index v0=polygonVertexIndices[i0];
+	Card i1=0;
+	Index v1=polygonVertexIndices[i1];
+	Card i2=1;
+	Index v2=polygonVertexIndices[i2];
+	while(numConcaveVertices>0)
+		{
+		/* Find the next ear: */
+		Card numTestedCorners=0;
+		while(numTestedCorners<numVertices)
+			{
+			/* Check if the current corner is an ear candidate: */
+			if(!concaveFlags[i1]&&(concaveFlags[i0]||concaveFlags[i2])) // Corner is convex and next to at least one concave corner
+				{
+				/* Check if the current corner is an ear: */
+				Scalar c0x=vertices[v0].position[a0];
+				Scalar c0y=vertices[v0].position[a1];
+				Scalar cx=vertices[v1].position[a0];
+				Scalar cy=vertices[v1].position[a1];
+				Scalar d0x=cx-c0x;
+				Scalar d0y=cy-c0y;
+				Scalar c2x=vertices[v2].position[a0];
+				Scalar c2y=vertices[v2].position[a1];
+				Scalar d1x=c2x-cx;
+				Scalar d1y=c2y-cy;
+				Scalar d2x=c0x-c2x;
+				Scalar d2y=c0y-c2y;
+				Scalar ex=Math::mid(c0x,c2x);
+				Scalar ey=Math::mid(c0y,c2y);
+				
+				/* Test every concave corner that is not adjacent to the ear candidate: */
+				bool earClear=true;
+				for(Card j=0;earClear&&j<numConcaveVertices;++j)
+					if(concaveVertexIndices[j]!=v0&&concaveVertexIndices[j]!=v2)
+						{
+						/* Get the concave corner's position: */
+						Scalar ccx=vertices[concaveVertexIndices[j]].position[a0];
+						Scalar ccy=vertices[concaveVertexIndices[j]].position[a1];
+						
+						/* Check if the concave corner is inside the ear candidate: */
+						earClear=(ccx-cx)*-d0y+(ccy-cy)*d0x<=Scalar(1.0e-5)||(ccx-cx)*-d1y+(ccy-cy)*d1x<=Scalar(1.0e-5)||(ccx-ex)*-d2y+(ccy-ey)*d2x<=Scalar(1.0e-5);
+						}
+				
+				/* Bail out if the ear is clear: */
+				if(earClear)
+					break;
+				}
+			
+			/* Go to the next corner around the remaining vertex loop: */
+			i0=i1;
+			v0=v1;
+			i1=i2;
+			v1=v2;
+			++i2;
+			if(i2==numVertices)
+				i2=0;
+			v2=polygonVertexIndices[i2];
+			++numTestedCorners;
+			}
+		
+		/* Check for runaway polygon: */
+		if(numTestedCorners==numVertices)
+			{
+			std::cerr<<"Polygon with "<<numConcaveVertices<<" concave vertices cannot be tesselated"<<std::endl;
+			
+			/* Dump the polygon: */
+			std::cerr<<numVertices<<std::endl;
+			for(Card i=0;i<numVertices;++i)
+				std::cerr<<vertices[polygonVertexIndices[i]].position[a0]<<", "<<vertices[polygonVertexIndices[i]].position[a1]<<std::endl;
+			goto giveUp;
+			}
+		
+		/* Generate a triangle for the current ear corner: */
+		triangleVertexIndices[numTriangles*3+0]=v0;
+		triangleVertexIndices[numTriangles*3+1]=v1;
+		triangleVertexIndices[numTriangles*3+2]=v2;
+		++numTriangles;
+		
+		/* Cut off the ear: */
+		--numVertices;
+		for(Card j=i1;j<numVertices;++j)
+			{
+			polygonVertexIndices[j]=polygonVertexIndices[j+1];
+			concaveFlags[j]=concaveFlags[j+1];
+			}
+		if(i0>i1)
+			--i0;
+		if(i2>i1)
+			--i2;
+		
+		/* Check if concave corners adjacent to the ear just became convex: */
+		Scalar d1x=vertices[v2].position[a0]-vertices[v0].position[a0];
+		Scalar d1y=vertices[v2].position[a1]-vertices[v0].position[a1];
+		if(concaveFlags[i0])
+			{
+			Card il=(i0+numVertices-1)%numVertices;
+			Index vl=polygonVertexIndices[il];
+			Scalar d0x=vertices[v0].position[a0]-vertices[vl].position[a0];
+			Scalar d0y=vertices[v0].position[a1]-vertices[vl].position[a1];
+			concaveFlags[i0]=d0x*d1y-d0y*d1x<Scalar(0);
+			if(!concaveFlags[i0])
+				{
+				/* Remove the concave corner from the list: */
+				Card j;
+				for(j=0;j<numConcaveVertices&&concaveVertexIndices[j]!=v0;++j)
+					;
+				if(j==numConcaveVertices)
+					std::cerr<<"Error in left concavity check"<<std::endl;
+				--numConcaveVertices;
+				for(;j<numConcaveVertices;++j)
+					concaveVertexIndices[j]=concaveVertexIndices[j+1];
+				}
+			}
+		if(concaveFlags[i2])
+			{
+			Card ir=(i2+1)%numVertices;
+			Index vr=polygonVertexIndices[ir];
+			Scalar d2x=vertices[vr].position[a0]-vertices[v2].position[a0];
+			Scalar d2y=vertices[vr].position[a1]-vertices[v2].position[a1];
+			concaveFlags[i2]=d1x*d2y-d1y*d2x<Scalar(0);
+			if(!concaveFlags[i2])
+				{
+				/* Remove the concave corner from the list: */
+				Card j;
+				for(j=0;j<numConcaveVertices&&concaveVertexIndices[j]!=v2;++j)
+					;
+				if(j==numConcaveVertices)
+					std::cerr<<"Error in right concavity check"<<std::endl;
+				--numConcaveVertices;
+				for(;j<numConcaveVertices;++j)
+					concaveVertexIndices[j]=concaveVertexIndices[j+1];
+				}
+			}
+		
+		/* Set up the next corner to try: */
+		i1=i0;
+		v1=v0;
+		i0=(i0+numVertices-1)%numVertices;
+		v0=polygonVertexIndices[i0];
+		}
+	
+	giveUp:
+	
+	/* Tesselate the rest of the polygon trivially: */
+	Index vi0=polygonVertexIndices[0];
+	Index vi1=polygonVertexIndices[1];
+	for(Card i=2;i<numVertices;++i)
+		{
+		Index vi2=polygonVertexIndices[i];
+		triangleVertexIndices[numTriangles*3+0]=vi0;
+		triangleVertexIndices[numTriangles*3+1]=vi1;
+		triangleVertexIndices[numTriangles*3+2]=vi2;
+		++numTriangles;
+		vi1=vi2;
+		}
+	}
