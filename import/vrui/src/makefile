@@ -29,7 +29,8 @@
 # installation directory.
 ########################################################################
 
-INSTALLDIR := /users/wm10/Sandbox/install_linux
+INSTALLDIR := $(G)/install_linux
+
 
 ########################################################################
 # Please do not change the following lines
