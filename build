@@ -2,5 +2,5 @@
 cd $G/import/vrui
 ./build
 cd $G/project/meshviewer
-make all
+make -j16 all
 make install
