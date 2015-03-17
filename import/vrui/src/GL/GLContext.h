@@ -28,10 +28,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <X11/X.h>
 #include <GL/glx.h>
 
-#define _EASYBLENDSDK_LINUX
-#include "EasyBlendSDK.h"
-#include <string>
-
 /* Forward declarations: */
 class GLExtensionManager;
 class GLContextData;
@@ -46,10 +42,6 @@ class GLContext:public Threads::RefCounted
 	int depth; // Bit depth of the visual associated with the GLX context
 	GLExtensionManager* extensionManager; // Pointer to an extension manager for this GLX context
 	GLContextData* contextData; // Pointer to an object associating per-context application state with this GLX context
-	std::string filename; // POL filename for scalable
-
-	/* Scalable */
-	EasyBlendSDK_Mesh *gMSDK;
 	
 	/* Constructors and destructors: */
 	public:

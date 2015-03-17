@@ -27,8 +27,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <GL/GLExtensionManager.h>
 #include <GL/GLContextData.h>
 
-#include <sstream>
-
 /**************************
 Methods of class GLContext:
 **************************/
@@ -37,23 +35,6 @@ GLContext::GLContext(const char* displayName,int* visualProperties)
 	:display(0),visual(0),depth(-1),
 	 extensionManager(0),contextData(0)
 	{
-
-	/* Define POL filename */
-
-	//array for each projector index holding a string identifying the node and x server
-	std::string projectors[] = {"cave010:0.0", "cave010:0.1", "cave010:0.2", "cave009:0.0", "cave009:0.1", "cave009:0.2", "cave009:0.3", "cave008:0.0", "cave008:0.1", "cave008:0.2", "cave007:0.0", "cave007:0.1", "cave007:0.3", "cave007:0.2", "cave006:0.0", "cave006:0.1", "cave006:0.3", "cave006:0.2", "cave005:0.0", "cave005:0.1", "cave005:0.3", "cave005:0.2", "cave004:0.0", "cave004:0.1", "cave004:0.3", "cave004:0.2", "cave003:0.0", "cave003:0.1", "cave003:0.3", "cave003:0.2", "cave002:0.0", "cave002:0.1", "cave002:0.3", "cave002:0.2", "cave001:0.0", "cave001:0.1", "cave001:0.3", "cave001:0.2"};
-
-	for(int i = 0; i < 38; i++)
-	{
-		if(projectors[i] == displayName)
-		{
-			std::stringstream sstm;
-			sstm.str(std::string());
-			sstm << "/gpfs/home/cavedemo/scalable/cave/ScalableData.pol_" << i;
-			filename = sstm.str(); 
-		}
-	}
-
 	/* Open connection to the X server: */
 	display=XOpenDisplay(displayName);
 	if(display==0)
@@ -150,9 +131,6 @@ void GLContext::init(GLXDrawable drawable)
 		/* Create a context data manager: */
 		contextData=new GLContextData(101);
 		}
-		gMSDK = new EasyBlendSDK_Mesh;
-		EasyBlendSDK_Initialize(filename.c_str(), gMSDK);
-
 	}
 
 void GLContext::deinit(void)
@@ -181,7 +159,6 @@ void GLContext::makeCurrent(GLXDrawable drawable)
 
 void GLContext::swapBuffers(GLXDrawable drawable)
 	{
-	OpenGLSwap(gMSDK);
 	/* Swap buffers in the given drawable: */
 	glXSwapBuffers(display,drawable);
 	}
