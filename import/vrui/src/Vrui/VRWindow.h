@@ -33,6 +33,9 @@ Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <GL/GLWindow.h>
 #include <Vrui/Geometry.h>
 
+#define _EASYBLENDSDK_LINUX
+#include "EasyBlendSDK.h"
+
 /* Forward declarations: */
 namespace Misc {
 class ConfigurationFileSection;
