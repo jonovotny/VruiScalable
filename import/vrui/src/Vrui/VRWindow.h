@@ -144,6 +144,11 @@ class VRWindow:public GLWindow
 	bool saveScreenshot; // Flag if the window is to save its contents after the next draw() call
 	std::string screenshotImageFileName; // Name of the image file into which to save the next screen shot
 	MovieSaver* movieSaver; // Pointer to a movie saver object if the window is supposed to write contents to a movie
+
+	/* Scalable Meshes */
+	EasyBlendSDK_Mesh *gMSDK;
+	EasyBlendSDK_Mesh *gMSDK_left;
+	EasyBlendSDK_Mesh *gMSDK_right;
 	
 	/* Private methods: */
 	void render(const GLWindow::WindowPos& viewportPos,int screenIndex,const Point& eye);

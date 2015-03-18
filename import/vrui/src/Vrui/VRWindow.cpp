@@ -1118,7 +1118,31 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 		if(asQuadSizeUniformIndex<0)
 			Misc::throwStdErr("VRWindow::VRWindow: Interzigging shader does not define quadSize variable");
 		}
-	
+
+	/* Initialize Scalable Meshes */
+	const char* defaultDisplay=getenv("DISPLAY");
+	if(defaultDisplay==0)
+		defaultDisplay="";
+	switch(windowType)
+	{
+		case MONO:
+			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "");
+			break;
+		
+		case LEFT:
+			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "left");
+			break;
+		
+		case RIGHT:
+			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "right");
+			break;
+		
+		case QUADBUFFER_STEREO:
+			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "left");
+			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "right");
+			break;
+	}
+
 	/* Check if the window is supposed to perform post-rendering lens distortion correction: */
 	if(configFileSection.retrieveValue<bool>("./lensCorrection",false))
 		{
@@ -2200,18 +2224,24 @@ void VRWindow::draw(void)
 			/* Render both-eyes view: */
 			glDrawBuffer(GL_BACK);
 			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::MONO));
+			EasyBlendSDK_SetEyepoint(gMSDK,0,0,0);
+			EasyBlendSDK_TransformInputToOutput(gMSDK);
 			break;
 		
 		case LEFT:
 			/* Render left-eye view: */
 			glDrawBuffer(GL_BACK);
 			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
+			EasyBlendSDK_SetEyepoint(gMSDK_left,0,0,0);
+			EasyBlendSDK_TransformInputToOutput(gMSDK_left);
 			break;
 		
 		case RIGHT:
 			/* Render right-eye view: */
 			glDrawBuffer(GL_BACK);
 			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
+			EasyBlendSDK_SetEyepoint(gMSDK_right,0,0,0);
+			EasyBlendSDK_TransformInputToOutput(gMSDK_right);
 			break;
 		
 		case QUADBUFFER_STEREO:
@@ -2219,11 +2249,15 @@ void VRWindow::draw(void)
 			glDrawBuffer(GL_BACK_LEFT);
 			displayState->eyeIndex=0;
 			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
+			EasyBlendSDK_SetEyepoint(gMSDK_left,0,0,0);
+			EasyBlendSDK_TransformInputToOutput(gMSDK_left);
 			
 			/* Render right-eye view: */
 			glDrawBuffer(GL_BACK_RIGHT);
 			displayState->eyeIndex=1;
 			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
+			EasyBlendSDK_SetEyepoint(gMSDK_right,0,0,0);
+			EasyBlendSDK_TransformInputToOutput(gMSDK_right);
 			break;
 		
 		case ANAGLYPHIC_STEREO:
