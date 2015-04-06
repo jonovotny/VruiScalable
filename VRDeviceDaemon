@@ -1,5 +1,5 @@
 #!/bin/bash
-module load nvidia
+module load nvidia-driver
 module load cave
 export G=/users/wm10/scratch/Sandbox
 cd $G
