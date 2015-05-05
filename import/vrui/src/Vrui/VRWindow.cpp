@@ -1123,6 +1123,7 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 	const char* defaultDisplay=getenv("DISPLAY");
 	if(defaultDisplay==0)
 		defaultDisplay="";
+	//std::cout << "GOT HERE" << std::endl;
 	switch(windowType)
 	{
 		case MONO:
@@ -1142,6 +1143,7 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "right");
 			break;
 	}
+	//std::cout << "GOT HERE 2" << std::endl;
 
 	/* Check if the window is supposed to perform post-rendering lens distortion correction: */
 	if(configFileSection.retrieveValue<bool>("./lensCorrection",false))
