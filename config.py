@@ -2,7 +2,8 @@ import math
 import re
 import sys
 
-filenames = ["/gpfs/runtime/opt/cave/ccv/share/vrsetup/cave_" + str(n) + ".vrsetup" for n in range(38)]
+#filenames = ["/gpfs/runtime/opt/cave/ccv/share/vrsetup/cave_" + str(n) + ".vrsetup" for n in range(38)]
+filenames = ["/users/jnhuffma/projects/cave/vrg3d_cornerpoints/conf/cave_" + str(n) + ".vrsetup" for n in range(38)]
 dicts = []
 
 def parseline(line):
@@ -27,16 +28,30 @@ for n in range(38):
 	botRight = dicts[n]["TileBotRight"].replace(" ", "").strip("()").split(",")
 	topRight = dicts[n]["TileTopRight"].replace(" ", "").strip("()").split(",")
 	botLeft = dicts[n]["TileBotLeft"].replace(" ", "").strip("()").split(",")
+	topLeft = dicts[n]["TileTopLeft"].replace(" ", "").strip("()").split(",")
 	br = [float(el) for el in botRight]
 	tr = [float(el) for el in topRight]
 	bl = [float(el) for el in botLeft]
-	xdiff = [tr[i] - br[i] for i in range(3)]
-	ydiff = [bl[i] - br[i] for i in range(3)]
+	tl = [float(el) for el in topLeft]
+	"""
+	if n in range(0, 10):#ceiling
+		xdiff = [br[i] - bl[i] for i in range(3)]
+		ydiff = [tl[i] - bl[i] for i in range(3)]
+		origin = dicts[n]["TileBotLeft"]
+	elif n in range(10, 38):#wall
+		if n % 2 == 0:#top
+			
+		else:#bottom
+	"""
+
+	xdiff = [br[i] - bl[i] for i in range(3)]
+	ydiff = [tl[i] - bl[i] for i in range(3)]
+	origin = dicts[n]["TileBotLeft"]
 
 	screens[n] += "		section screen" + str(n) + "\n"
 	screens[n] += "			name screen" + str(n) + "\n"
 	screens[n] += "			deviceMounted false\n"
-	screens[n] += "			origin " + dicts[n]["TileBotRight"] + "\n"
+	screens[n] += "			origin " + origin + "\n"
 	screens[n] += "			horizontalAxis (" + str(xdiff[0]) + ", " + str(xdiff[1]) + ", " + str(xdiff[2]) + ")\n"
 	screens[n] += "			width " + str(math.sqrt(sum([xdiff[i]*xdiff[i] for i in range(3)]))) + "\n"
 	screens[n] += "			verticalAxis (" + str(ydiff[0]) + ", " + str(ydiff[1]) + ", " + str(ydiff[2]) + ")\n"
