@@ -1,5 +1,6 @@
 import math
 import re
+import sys
 
 filenames = ["/gpfs/runtime/opt/cave/ccv/share/vrsetup/cave_" + str(n) + ".vrsetup" for n in range(38)]
 dicts = []
@@ -55,8 +56,12 @@ for n in range(38):
 
 	arrayvals[n] += "\"" + dicts[n]["#conf"].replace(" ", "") + "\", "
 
-print "".join(screens)
-
-print "".join(windows)
-
-#print "".join(arrayvals)
+if len(sys.argv) == 2:
+	if sys.argv[1] == "screens":
+		print "".join(screens)
+	elif sys.argv[1] == "windows":
+		print "".join(windows)
+	elif sys.argv[1] == "arrays":
+		print "".join(arrayvals)
+else:
+	print "no arg"
