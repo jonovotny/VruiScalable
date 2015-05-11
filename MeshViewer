@@ -1,4 +1,4 @@
 #!/bin/bash
 export G=/users/wm10/scratch/Sandbox
 cd $G
-./install_linux/bin/MeshViewer ../cube.obj
+./install_linux/bin/MeshViewer ../cordcross.obj
