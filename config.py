@@ -2,8 +2,8 @@ import math
 import re
 import sys
 
-#filenames = ["/gpfs/runtime/opt/cave/ccv/share/vrsetup/cave_" + str(n) + ".vrsetup" for n in range(38)]
-filenames = ["/users/jnhuffma/projects/cave/vrg3d_cornerpoints/conf/cave_" + str(n) + ".vrsetup" for n in range(38)]
+filenames = ["/gpfs/runtime/opt/cave/ccv/share/vrsetup/cave_" + str(n) + ".vrsetup" for n in range(38)]
+#filenames = ["/users/jnhuffma/projects/cave/vrg3d_cornerpoints/conf/cave_" + str(n) + ".vrsetup" for n in range(38)]
 dicts = []
 
 def parseline(line):
@@ -46,7 +46,7 @@ for n in range(38):
 
 	xdiff = [br[i] - bl[i] for i in range(3)]
 	ydiff = [tl[i] - bl[i] for i in range(3)]
-	origin = dicts[n]["TileBotLeft"]
+	origin = "(" + ", ".join([str(el) for el in bl]) + ")"
 
 	screens[n] += "		section screen" + str(n) + "\n"
 	screens[n] += "			name screen" + str(n) + "\n"
