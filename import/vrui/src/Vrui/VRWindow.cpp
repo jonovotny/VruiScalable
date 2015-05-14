@@ -1147,13 +1147,21 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 
 	std::cout << "POL Filename: " << POLfileName << std::endl;
 
+	EasyBlendSDK_Mesh *gMSDK;
+	EasyBlendSDKError msdkErr;
+
+	EasyBlendSDK_Mesh *gMSDK_left;
+	EasyBlendSDKError msdkErr_left;
+
+	EasyBlendSDK_Mesh *gMSDK_right;
+	EasyBlendSDKError msdkErr_right;
+
 	switch(windowType)
 	{
 		case MONO:
 		case LEFT:
 		case RIGHT:
-			EasyBlendSDK_Mesh *gMSDK = new EasyBlendSDK_Mesh;
-			EasyBlendSDKError msdkErr;
+			gMSDK = new EasyBlendSDK_Mesh;
 			msdkErr = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK);
 			if(msdkErr != EasyBlendSDK_ERR_S_OK)
 			{
@@ -1163,16 +1171,16 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 			break;
 
 		case QUADBUFFER_STEREO:
-			EasyBlendSDK_Mesh *gMSDK_left = new EasyBlendSDK_Mesh;
-			EasyBlendSDKError msdkErr_left = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK_left);
+			gMSDK_left = new EasyBlendSDK_Mesh;
+			msdkErr_left = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK_left);
 			if(msdkErr_left != EasyBlendSDK_ERR_S_OK)
 			{
 				std::cout << "Error on Left EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr_left) << std::endl;
 				std::cout << "File is: " << POLfileName.c_str() << std::endl;
 			}
 
-			EasyBlendSDK_Mesh *gMSDK_right = new EasyBlendSDK_Mesh;
-			EasyBlendSDKError msdkErr_right = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK_right);
+			gMSDK_right = new EasyBlendSDK_Mesh;
+			msdkErr_right = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK_right);
 			if(msdkErr_right != EasyBlendSDK_ERR_S_OK)
 			{
 				std::cout << "Error on Right EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr_right) << std::endl;
