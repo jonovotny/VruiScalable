@@ -29,10 +29,10 @@ for n in range(38):
 	topRight = dicts[n]["TileTopRight"].replace(" ", "").strip("()").split(",")
 	botLeft = dicts[n]["TileBotLeft"].replace(" ", "").strip("()").split(",")
 	topLeft = dicts[n]["TileTopLeft"].replace(" ", "").strip("()").split(",")
-	br = [float(el) for el in botRight]
-	tr = [float(el) for el in topRight]
-	bl = [float(el) for el in botLeft]
-	tl = [float(el) for el in topLeft]
+	br = [float(el) * 1.88 for el in botRight]
+	tr = [float(el) * 1.88 for el in topRight]
+	bl = [float(el) * 1.88 for el in botLeft]
+	tl = [float(el) * 1.88 for el in topLeft]
 	"""
 	if n in range(0, 10):#ceiling
 		xdiff = [br[i] - bl[i] for i in range(3)]
