@@ -1192,7 +1192,7 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 			EasyBlendSDK_SetOutputDrawBuffer(gMSDK,  GL_BACK);
 			break;
 
-		case QUADBUFFER_STEREO;
+		case QUADBUFFER_STEREO:
 			EasyBlendSDK_SetInputReadBuffer(gMSDK_left, GL_BACK_LEFT);
 			EasyBlendSDK_SetOutputDrawBuffer(gMSDK_left,  GL_BACK_LEFT);
 
