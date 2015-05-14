@@ -94,7 +94,10 @@ Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <GL/GLTransformationWrappers.h>
 #endif
 
-#include "Scalable.h"
+#define _EASYBLENDSDK_LINUX
+#include "EasyBlendSDK.h"
+#include <string>
+#include <sstream>
 
 namespace Misc {
 
@@ -1124,25 +1127,82 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 	if(defaultDisplay==0)
 		defaultDisplay="";
 	//std::cout << "GOT HERE" << std::endl;
+	//#ifdef USE_SCALABLE
+	
+	std::string displayName = configFileSection.retrieveString("./display",defaultDisplay), "";
+	std::string projectors[] = {"cave010:0.0", "cave010:0.1", "cave010:0.2", "cave009:0.0", "cave009:0.1", "cave009:0.2", "cave009:0.3", "cave008:0.0", "cave008:0.1", "cave008:0.2", "cave007:0.0", "cave007:0.1", "cave007:0.3", "cave007:0.2", "cave006:0.0", "cave006:0.1", "cave006:0.3", "cave006:0.2", "cave005:0.0", "cave005:0.1", "cave005:0.3", "cave005:0.2", "cave004:0.0", "cave004:0.1", "cave004:0.3", "cave004:0.2", "cave003:0.0", "cave003:0.1", "cave003:0.3", "cave003:0.2", "cave002:0.0", "cave002:0.1", "cave002:0.3", "cave002:0.2", "cave001:0.0", "cave001:0.1", "cave001:0.3", "cave001:0.2"};
+
+	std::string POLfileName;
+
+	for(int i = 0; i < 38; i++)
+	{
+		if(projectors[i] == displayName)
+		{
+			std::stringstream sstm;
+			sstm.str(std::string());
+			sstm << "/gpfs/home/cavedemo/scalable/cave/ScalableData.pol_" << i;
+			POLfileName = sstm.str(); 
+		}
+	}
+
+	std::cout << "POL Filename: " << POLfileName << std::endl;
+
 	switch(windowType)
 	{
 		case MONO:
-			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "");
-			break;
-		
 		case LEFT:
-			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "left");
-			break;
-		
 		case RIGHT:
-			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "right");
+			EasyBlendSDK_Mesh *gMSDK = new EasyBlendSDK_Mesh;
+			EasyBlendSDKError msdkErr;
+			msdkErr = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK);
+			if(msdkErr != EasyBlendSDK_ERR_S_OK)
+			{
+				std::cout << "Error on EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr) << std::endl;
+				std::cout << "File is: " << POLfileName.c_str() << std::endl;
+			}
 			break;
-		
+
 		case QUADBUFFER_STEREO:
-			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "left");
-			gMSDK = initScalableMesh(configFileSection.retrieveString("./display",defaultDisplay), "right");
+			EasyBlendSDK_Mesh *gMSDK_left = new EasyBlendSDK_Mesh;
+			EasyBlendSDKError msdkErr_left = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK_left);
+			if(msdkErr_left != EasyBlendSDK_ERR_S_OK)
+			{
+				std::cout << "Error on Left EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr_left) << std::endl;
+				std::cout << "File is: " << POLfileName.c_str() << std::endl;
+			}
+
+			EasyBlendSDK_Mesh *gMSDK_right = new EasyBlendSDK_Mesh;
+			EasyBlendSDKError msdkErr_right = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK_right);
+			if(msdkErr_right != EasyBlendSDK_ERR_S_OK)
+			{
+				std::cout << "Error on Right EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr_right) << std::endl;
+				std::cout << "File is: " << POLfileName.c_str() << std::endl;
+			}
 			break;
 	}
+
+	std::cout << "Mesh(es) Initialized!" << std::endl;
+
+	switch(windowType)
+	{
+		case MONO:
+		case LEFT:
+		case RIGHT:
+			EasyBlendSDK_SetInputReadBuffer(gMSDK, GL_BACK);
+			EasyBlendSDK_SetOutputDrawBuffer(gMSDK,  GL_BACK);
+			break;
+
+		case QUADBUFFER_STEREO;
+			EasyBlendSDK_SetInputReadBuffer(gMSDK_left, GL_BACK_LEFT);
+			EasyBlendSDK_SetOutputDrawBuffer(gMSDK_left,  GL_BACK_LEFT);
+
+			EasyBlendSDK_SetInputReadBuffer(gMSDK_right, GL_BACK_RIGHT);
+			EasyBlendSDK_SetOutputDrawBuffer(gMSDK_right,  GL_BACK_RIGHT);
+			break;
+	}
+
+	std::cout << "Buffers Set!" << std::endl;
+	//#endif
 	//std::cout << "GOT HERE 2" << std::endl;
 
 	/* Check if the window is supposed to perform post-rendering lens distortion correction: */
@@ -2235,7 +2295,7 @@ void VRWindow::draw(void)
 			glDrawBuffer(GL_BACK);
 			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
 			EasyBlendSDK_SetEyepoint(gMSDK_left,0,0,0);
-			EasyBlendSDK_TransformInputToOutput(gMSDK_left);
+			EasyBlendSDK_TransformInputToOutput(gMSDK);
 			break;
 		
 		case RIGHT:
@@ -2243,7 +2303,7 @@ void VRWindow::draw(void)
 			glDrawBuffer(GL_BACK);
 			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
 			EasyBlendSDK_SetEyepoint(gMSDK_right,0,0,0);
-			EasyBlendSDK_TransformInputToOutput(gMSDK_right);
+			EasyBlendSDK_TransformInputToOutput(gMSDK);
 			break;
 		
 		case QUADBUFFER_STEREO:
