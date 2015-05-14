@@ -1,8 +1,8 @@
 #!/bin/bash
-rm $G/import/vrui/src/Share/Vrui.cfg
-cp $G/import/vrui/Vrui.cfg $G/import/vrui/src/Share
-rm $G/import/vrui/src/Share/VRDevices.cfg
-cp $G/import/vrui/VRDevices.cfg $G/import/vrui/src/Share
+#rm $G/import/vrui/src/Share/Vrui.cfg
+#cp $G/import/vrui/Vrui.cfg $G/import/vrui/src/Share
+#rm $G/import/vrui/src/Share/VRDevices.cfg
+#cp $G/import/vrui/VRDevices.cfg $G/import/vrui/src/Share
 cd src
 make
 make install
