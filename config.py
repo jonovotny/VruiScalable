@@ -2,8 +2,9 @@ import math
 import re
 import sys
 
-filenames = ["/gpfs/runtime/opt/cave/ccv/share/vrsetup/cave_" + str(n) + ".vrsetup" for n in range(38)]
+#filenames = ["/gpfs/runtime/opt/cave/ccv/share/vrsetup/cave_" + str(n) + ".vrsetup" for n in range(38)]
 #filenames = ["/users/jnhuffma/projects/cave/vrg3d_cornerpoints/conf/cave_" + str(n) + ".vrsetup" for n in range(38)]
+filenames = ["/gpfs/scratch/bknorlei/cornerPoints/conf/cave_" + str(n) + ".vrsetup" for n in range(38)]
 dicts = []
 
 def parseline(line):
@@ -29,10 +30,10 @@ for n in range(38):
 	topRight = dicts[n]["TileTopRight"].replace(" ", "").strip("()").split(",")
 	botLeft = dicts[n]["TileBotLeft"].replace(" ", "").strip("()").split(",")
 	topLeft = dicts[n]["TileTopLeft"].replace(" ", "").strip("()").split(",")
-	br = [float(el) * 1.88 for el in botRight]
-	tr = [float(el) * 1.88 for el in topRight]
-	bl = [float(el) * 1.88 for el in botLeft]
-	tl = [float(el) * 1.88 for el in topLeft]
+	br = [float(el) * 4 * 1.88 for el in botRight]
+	tr = [float(el) * 4 * 1.88 for el in topRight]
+	bl = [float(el) * 4 * 1.88 for el in botLeft]
+	tl = [float(el) * 4 * 1.88 for el in topLeft]
 	"""
 	if n in range(0, 10):#ceiling
 		xdiff = [br[i] - bl[i] for i in range(3)]
