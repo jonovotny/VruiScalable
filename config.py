@@ -44,9 +44,9 @@ for n in range(38):
 		else:#bottom
 	"""
 
-	xdiff = [br[i] - bl[i] for i in range(3)]
-	ydiff = [tl[i] - bl[i] for i in range(3)]
-	origin = "(" + ", ".join([str(el) for el in bl]) + ")"
+	xdiff = [bl[i] - tl[i] for i in range(3)]
+	ydiff = [tr[i] - tl[i] for i in range(3)]
+	origin = "(" + ", ".join([str(el) for el in tl]) + ")"
 
 	screens[n] += "		section screen" + str(n) + "\n"
 	screens[n] += "			name screen" + str(n) + "\n"
