@@ -1147,15 +1147,10 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 
 	std::cout << "POL Filename: " << POLfileName << std::endl;
 
-	EasyBlendSDK_Mesh *gMSDK;
 	EasyBlendSDKError msdkErr;
-
-	EasyBlendSDK_Mesh *gMSDK_left;
 	EasyBlendSDKError msdkErr_left;
-
-	EasyBlendSDK_Mesh *gMSDK_right;
 	EasyBlendSDKError msdkErr_right;
-
+	
 	switch(windowType)
 	{
 		case MONO:
@@ -1186,6 +1181,7 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 				std::cout << "Error on Right EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr_right) << std::endl;
 				std::cout << "File is: " << POLfileName.c_str() << std::endl;
 			}
+			std::cout << "QuadBuffer Scalable loaded" << std::endl;
 			break;
 	}
 
