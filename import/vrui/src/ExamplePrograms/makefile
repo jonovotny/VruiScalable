@@ -22,7 +22,7 @@
 # matches the default Vrui installation; if Vrui's installation
 # directory was changed during Vrui's installation, the directory below
 # must be adapted.
-VRUI_MAKEDIR := $(HOME)/Vrui-3.1/share/make
+VRUI_MAKEDIR := $(G)/import/vrui/src/BuildRoot
 ifdef DEBUG
   VRUI_MAKEDIR := $(VRUI_MAKEDIR)/debug
 endif
@@ -34,7 +34,7 @@ endif
 # directory, respectively.
 # Important note: Do not use ~ as an abbreviation for the user's home
 # directory here; use $(HOME) instead.
-INSTALLDIR := $(shell pwd)
+INSTALLDIR := $(G)/install_linux
 
 # Set resource directory:
 RESOURCEDIR = share/VruiExamplePrograms
