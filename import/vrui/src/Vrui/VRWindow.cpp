@@ -94,10 +94,12 @@ Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <GL/GLTransformationWrappers.h>
 #endif
 
+#ifdef USE_SCALABLE
 #define _EASYBLENDSDK_LINUX
 #include "EasyBlendSDK.h"
 #include <string>
 #include <sstream>
+#endif
 
 namespace Misc {
 
@@ -1122,12 +1124,11 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 			Misc::throwStdErr("VRWindow::VRWindow: Interzigging shader does not define quadSize variable");
 		}
 
+	#ifdef USE_SCALABLE
 	/* Initialize Scalable Meshes */
 	const char* defaultDisplay=getenv("DISPLAY");
 	if(defaultDisplay==0)
 		defaultDisplay="";
-	//std::cout << "GOT HERE" << std::endl;
-	//#ifdef USE_SCALABLE
 	
 	std::string displayName = configFileSection.retrieveString("./display",defaultDisplay);
 	std::string projectors[] = {"cave010:0.0", "cave010:0.1", "cave010:0.2", "cave009:0.0", "cave009:0.1", "cave009:0.2", "cave009:0.3", "cave008:0.0", "cave008:0.1", "cave008:0.2", "cave007:0.0", "cave007:0.1", "cave007:0.3", "cave007:0.2", "cave006:0.0", "cave006:0.1", "cave006:0.3", "cave006:0.2", "cave005:0.0", "cave005:0.1", "cave005:0.3", "cave005:0.2", "cave004:0.0", "cave004:0.1", "cave004:0.3", "cave004:0.2", "cave003:0.0", "cave003:0.1", "cave003:0.3", "cave003:0.2", "cave002:0.0", "cave002:0.1", "cave002:0.3", "cave002:0.2", "cave001:0.0", "cave001:0.1", "cave001:0.3", "cave001:0.2"};
@@ -1144,8 +1145,6 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 			POLfileName = sstm.str(); 
 		}
 	}
-
-	std::cout << "POL Filename: " << POLfileName << std::endl;
 
 	EasyBlendSDKError msdkErr;
 	EasyBlendSDKError msdkErr_left;
@@ -1181,11 +1180,8 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 				std::cout << "Error on Right EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr_right) << std::endl;
 				std::cout << "File is: " << POLfileName.c_str() << std::endl;
 			}
-			std::cout << "QuadBuffer Scalable loaded" << std::endl;
 			break;
 	}
-
-	std::cout << "Mesh(es) Initialized!" << std::endl;
 
 	switch(windowType)
 	{
@@ -1204,10 +1200,7 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 			EasyBlendSDK_SetOutputDrawBuffer(gMSDK_right,  GL_BACK_RIGHT);
 			break;
 	}
-
-	std::cout << "Buffers Set!" << std::endl;
-	//#endif
-	//std::cout << "GOT HERE 2" << std::endl;
+	#endif
 
 	/* Check if the window is supposed to perform post-rendering lens distortion correction: */
 	if(configFileSection.retrieveValue<bool>("./lensCorrection",false))
@@ -2290,24 +2283,30 @@ void VRWindow::draw(void)
 			/* Render both-eyes view: */
 			glDrawBuffer(GL_BACK);
 			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::MONO));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_SetEyepoint(gMSDK,0,0,0);
 			EasyBlendSDK_TransformInputToOutput(gMSDK);
+			#endif
 			break;
 		
 		case LEFT:
 			/* Render left-eye view: */
 			glDrawBuffer(GL_BACK);
 			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_SetEyepoint(gMSDK_left,0,0,0);
 			EasyBlendSDK_TransformInputToOutput(gMSDK);
+			#endif
 			break;
 		
 		case RIGHT:
 			/* Render right-eye view: */
 			glDrawBuffer(GL_BACK);
 			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_SetEyepoint(gMSDK_right,0,0,0);
 			EasyBlendSDK_TransformInputToOutput(gMSDK);
+			#endif
 			break;
 		
 		case QUADBUFFER_STEREO:
@@ -2315,15 +2314,19 @@ void VRWindow::draw(void)
 			glDrawBuffer(GL_BACK_LEFT);
 			displayState->eyeIndex=0;
 			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_SetEyepoint(gMSDK_left,0,0,0);
 			EasyBlendSDK_TransformInputToOutput(gMSDK_left);
-			
+			#endif
+
 			/* Render right-eye view: */
 			glDrawBuffer(GL_BACK_RIGHT);
 			displayState->eyeIndex=1;
 			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_SetEyepoint(gMSDK_right,0,0,0);
 			EasyBlendSDK_TransformInputToOutput(gMSDK_right);
+			#endif
 			break;
 		
 		case ANAGLYPHIC_STEREO:
