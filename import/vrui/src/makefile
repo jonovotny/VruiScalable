@@ -30,7 +30,7 @@
 ########################################################################
 
 INSTALLDIR := $(G)/install_linux
-
+CFLAGS += -DUSE_SCALABLE
 
 ########################################################################
 # Please do not change the following lines
