@@ -33,7 +33,6 @@ Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <GL/GLWindow.h>
 #include <Vrui/Geometry.h>
 
-//#define USE_SCALABLE
 #ifdef USE_SCALABLE
 #define _EASYBLENDSDK_LINUX
 #include "EasyBlendSDK.h"
