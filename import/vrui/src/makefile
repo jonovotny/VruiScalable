@@ -142,6 +142,7 @@ VRDEVICES_INPUT_H_HAS_STRUCTS = 1
 # bluez is supported. This might or might not work.
 VRDEVICES_USE_BLUETOOTH = $(SYSTEM_HAVE_BLUETOOTH)
 
+CFLAGS += -DUSE_SCALABLE
 ########################################################################
 # Please do not change anything below this line
 ########################################################################
