@@ -1,60 +1,78 @@
-#include <iostream>
-#include <sstream>
+#ifdef WIN32
+#  include <windows.h>
+#endif
+
+
+#ifdef WIN32
+#include <GL/gl.h>
+#include "glext.h"
+#else
+//#include <GL/gl.h>
+//#include <GL/glx.h>
+#endif
+
 #include <string>
+#include <set>
 
-#define _EASYBLENDSDK_LINUX
-#include "EasyBlendSDK.h"
 
-EasyBlendSDK_Mesh * initScalableMesh(std::string displayName, std::string specifier)
+//void ScalableSetView(double, double, double, bool left=false);
+void ScalableSetView0(double, double, double, bool left=false);
+
+void ScalableInit(const char* ScalableMesh);
+void ScalableClose();
+void ScalablePreSwap(bool left=false);
+
+void getTopLeft(double &x, double &y, double &z, bool left);
+void getTopRight(double &x, double &y, double &z, bool left);
+void getBotLeft(double &x, double &y, double &z, bool left);
+void getBotRight(double &x, double &y, double &z, bool left);
+
+void ScalableSetEye(bool left=false);
+extern bool useScalable;
+
+/*struct GLExtensions
 {
-	//std::cout << displayName << std::endl;	
+public:
+  
+  // Description:
+  // Get the full list of extensions we have.
+  void Initialize();
+  
+  // Description:
+  // Is a particular extension supported.
+  inline bool IsExtensionSupported(const char *ExtensionText)
+  {
+    return (m_glExtSet.find(ExtensionText) != m_glExtSet.end());
+  }
+  
+  // Description:
+  // Get the extension function, return NULL if not ssupported.
+  //static void * GetFunction(const char *ExtensionText);
+  
+  // Description:
+  // Once we grab during the initialize. They could be NULL.
+  PFNGLGENFRAMEBUFFERSEXTPROC            glGenFramebuffersEXT;
+  PFNGLDELETEFRAMEBUFFERSEXTPROC         glDeleteFramebuffersEXT;
+  PFNGLBINDFRAMEBUFFEREXTPROC            glBindFramebufferEXT;
+  PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC     glCheckFramebufferStatusEXT;
+  PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC 
+                                         glGetFramebufferAttachmentParameterivEXT;
+  PFNGLGENERATEMIPMAPEXTPROC             glGenerateMipmapEXT;
+  PFNGLFRAMEBUFFERTEXTURE2DEXTPROC       glFramebufferTexture2DEXT;
+  PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC    glFramebufferRenderbufferEXT;
+  PFNGLGENRENDERBUFFERSEXTPROC           glGenRenderbuffersEXT;
+  PFNGLDELETERENDERBUFFERSEXTPROC        glDeleteRenderbuffersEXT;
+  PFNGLBINDRENDERBUFFEREXTPROC           glBindRenderbufferEXT;
+  PFNGLRENDERBUFFERSTORAGEEXTPROC        glRenderbufferStorageEXT;
+  PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC glGetRenderbufferParameterivEXT;
+  PFNGLISRENDERBUFFEREXTPROC             glIsRenderbufferEXT;
+  PFNGLACTIVETEXTUREARBPROC              glActiveTexture;
 
-	std::string projectors[] = {"cave010:0.0", "cave010:0.1", "cave010:0.2", "cave009:0.0", "cave009:0.1", "cave009:0.2", "cave009:0.3", "cave008:0.0", "cave008:0.1", "cave008:0.2", "cave007:0.0", "cave007:0.1", "cave007:0.3", "cave007:0.2", "cave006:0.0", "cave006:0.1", "cave006:0.3", "cave006:0.2", "cave005:0.0", "cave005:0.1", "cave005:0.3", "cave005:0.2", "cave004:0.0", "cave004:0.1", "cave004:0.3", "cave004:0.2", "cave003:0.0", "cave003:0.1", "cave003:0.3", "cave003:0.2", "cave002:0.0", "cave002:0.1", "cave002:0.3", "cave002:0.2", "cave001:0.0", "cave001:0.1", "cave001:0.3", "cave001:0.2"};
+protected:
+  std::set<std::string> m_glExtSet;
+  
+  // Description:
+  // Fill in the set of strings.
+  static void GetOpenGLExtensions(std::set<std::string>& glExtSet);
+};*/
 
-	std::string POLfileName;
-
-	for(int i = 0; i < 38; i++)
-	{
-		if(projectors[i] == displayName)
-		{
-			std::stringstream sstm;
-			sstm.str(std::string());
-			sstm << "/gpfs/home/cavedemo/scalable/cave/ScalableData.pol_" << i;
-			POLfileName = sstm.str(); 
-		}
-	}
-
-	//std::cout << "POL Filename: " << POLfileName << std::endl;
-
-	EasyBlendSDK_Mesh *gMSDK = new EasyBlendSDK_Mesh;
-	EasyBlendSDKError msdkErr;
-
-	msdkErr = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK);
-	if(msdkErr != EasyBlendSDK_ERR_S_OK)
-	{
-		std::cout << "Error on EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr) << std::endl;
-		std::cout << "File is: " << POLfileName.c_str() << std::endl;
-	}
-
-	//std::cout << "Mesh Initialized!" << std::endl;
-
-	if(specifier == "left")
-	{
-		EasyBlendSDK_SetInputReadBuffer(gMSDK, GL_BACK_LEFT);
-		EasyBlendSDK_SetOutputDrawBuffer(gMSDK,  GL_BACK_LEFT);
-	}
-	else if(specifier == "right")
-	{
-		EasyBlendSDK_SetInputReadBuffer(gMSDK, GL_BACK_RIGHT);
-		EasyBlendSDK_SetOutputDrawBuffer(gMSDK,  GL_BACK_RIGHT);
-	}
-	else
-	{
-		EasyBlendSDK_SetInputReadBuffer(gMSDK, GL_BACK);
-		EasyBlendSDK_SetOutputDrawBuffer(gMSDK,  GL_BACK);
-	}
-
-	//std::cout << "Buffers Set!" << std::endl;
-
-	return gMSDK;
-}
