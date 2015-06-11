@@ -30,7 +30,6 @@
 ########################################################################
 
 INSTALLDIR := $(G)/install_linux
-CFLAGS += -DUSE_SCALABLE
 
 ########################################################################
 # Please do not change the following lines
@@ -142,7 +141,6 @@ VRDEVICES_INPUT_H_HAS_STRUCTS = 1
 # bluez is supported. This might or might not work.
 VRDEVICES_USE_BLUETOOTH = $(SYSTEM_HAVE_BLUETOOTH)
 
-CFLAGS += -DUSE_SCALABLE
 ########################################################################
 # Please do not change anything below this line
 ########################################################################
@@ -219,6 +217,9 @@ else
   CFLAGS += $(CDSOFLAGS)
   LIBRARYNAME = $(LIBDESTDIR)/$(call FULLDSONAME,$(1))
 endif
+
+# Set flag to enable Scalable
+CFLAGS += -DUSE_SCALABLE
 
 ########################################################################
 # List packages used by this project
