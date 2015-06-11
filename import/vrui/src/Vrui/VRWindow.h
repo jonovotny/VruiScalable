@@ -35,6 +35,7 @@ Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #ifdef USE_SCALABLE
 #define _EASYBLENDSDK_LINUX
+#include "Scalable.h"
 #include "EasyBlendSDK.h"
 #endif
 
