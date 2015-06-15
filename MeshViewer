@@ -1,4 +1,2 @@
 #!/bin/bash
-export G=/users/wm10/scratch/Sandbox
-cd $G
-./install_linux/bin/MeshViewer ../coordcross2.obj
+./install_linux/bin/MeshViewer ../Data/Basic/coordcross2.obj
