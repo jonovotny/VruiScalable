@@ -36,6 +36,9 @@ for n in range(69):
 		tr = [float(el) * scale for el in topRight]
 		bl = [float(el) * scale for el in botLeft]
 		tl = [float(el) * scale for el in topLeft]
+
+		for corner in [br, tr, bl, tl]:
+			corner[1] = -corner[1]
 		"""
 		if n in range(0, 10):#ceiling
 			xdiff = [br[i] - bl[i] for i in range(3)]
