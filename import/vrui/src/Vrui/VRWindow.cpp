@@ -2264,60 +2264,78 @@ void VRWindow::draw(void)
 		{
 		case MONO:
 			/* Render both-eyes view: */
-			glDrawBuffer(GL_BACK);
-			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::MONO));
 			#ifdef USE_SCALABLE
 			eyePos_mono = viewers[0]->getEyePosition(Viewer::MONO);
 			EasyBlendSDK_SetEyepoint(gMSDK,eyePos_mono[0],eyePos_mono[1],eyePos_mono[2]);
-			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_mono[0],eyePos_mono[1],eyePos_mono[2],tile_distance);
+			ScalableSetEye(false);
+
+			#endif
+			glDrawBuffer(GL_BACK);
+			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::MONO));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_TransformInputToOutput(gMSDK);
 			#endif
 			break;
 		
 		case LEFT:
 			/* Render left-eye view: */
-			glDrawBuffer(GL_BACK);
-			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
 			#ifdef USE_SCALABLE
 			eyePos_left = viewers[0]->getEyePosition(Viewer::LEFT);
 			EasyBlendSDK_SetEyepoint(gMSDK_left,eyePos_left[0],eyePos_left[1],eyePos_left[2]);
-			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_left[0],eyePos_left[1],eyePos_left[2],tile_distance);
+			ScalableSetEye(true);
+
+			#endif
+			glDrawBuffer(GL_BACK);
+			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_TransformInputToOutput(gMSDK);
 			#endif
 			break;
 		
 		case RIGHT:
 			/* Render right-eye view: */
-			glDrawBuffer(GL_BACK);
-			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
 			#ifdef USE_SCALABLE
 			eyePos_right = viewers[0]->getEyePosition(Viewer::RIGHT);
 			EasyBlendSDK_SetEyepoint(gMSDK_right,eyePos_right[0],eyePos_right[1],eyePos_right[2]);
 			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_right[0],eyePos_right[1],eyePos_right[2],tile_distance);
+			ScalableSetEye(false);
+
+			#endif
+			glDrawBuffer(GL_BACK);
+			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_TransformInputToOutput(gMSDK);
 			#endif
 			break;
 		
 		case QUADBUFFER_STEREO:
 			/* Render left-eye view: */
-			glDrawBuffer(GL_BACK_LEFT);
-			displayState->eyeIndex=0;
-			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
 			#ifdef USE_SCALABLE
 			eyePos_left = viewers[0]->getEyePosition(Viewer::LEFT);
 			EasyBlendSDK_SetEyepoint(gMSDK_left,eyePos_left[0],eyePos_left[1],eyePos_left[2]);
 			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_left[0],eyePos_left[1],eyePos_left[2],tile_distance);
+			ScalableSetEye(true);
+
+			#endif
+			glDrawBuffer(GL_BACK_LEFT);
+			displayState->eyeIndex=0;
+			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_TransformInputToOutput(gMSDK_left);
 			#endif
 
 			/* Render right-eye view: */
-			glDrawBuffer(GL_BACK_RIGHT);
-			displayState->eyeIndex=1;
-			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
 			#ifdef USE_SCALABLE
 			eyePos_right = viewers[0]->getEyePosition(Viewer::RIGHT);
 			EasyBlendSDK_SetEyepoint(gMSDK_right,eyePos_right[0],eyePos_right[1],eyePos_right[2]);
 			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_right[0],eyePos_right[1],eyePos_right[2],tile_distance);
+			ScalableSetEye(false);
+
+			#endif
+			glDrawBuffer(GL_BACK_RIGHT);
+			displayState->eyeIndex=1;
+			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
+			#ifdef USE_SCALABLE
 			EasyBlendSDK_TransformInputToOutput(gMSDK_right);
 			#endif
 			break;
