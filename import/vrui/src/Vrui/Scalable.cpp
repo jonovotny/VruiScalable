@@ -17,6 +17,7 @@
 
 #ifdef USE_SCALABLE
 
+#define _EASYBLENDSDK_LINUX
 #include "EasyBlendSDK.h"
 #include "Scalable.h" 
 #include <stdio.h>
