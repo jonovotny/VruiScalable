@@ -1,0 +1,2 @@
+#!/bin/bash
+./install_linux/bin/MeshViewer ../Data/ScottCollins/spine/postop_tex_smooth.obj
