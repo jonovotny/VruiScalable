@@ -1,2 +1,2 @@
 #!/bin/bash
-./install_linux/bin/MeshViewer ../Data/RyanCabeen/brains/brain01-arcuate.obj
+./install_linux/bin/MeshViewer ~/data/gfx/VisualizationData/Medical/Brain/brain01.obj

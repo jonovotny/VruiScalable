@@ -1,2 +1,2 @@
 #!/bin/bash
-./install_linux/bin/MeshViewer ../Data/ScottCollins/heart2/*.obj
+./install_linux/bin/MeshViewer ~/data/gfx/VisualizationData/Medical/Heart/*.obj
