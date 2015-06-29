@@ -1,2 +1,2 @@
 #!/bin/bash
-./install_linux/bin/MeshViewer ~/data/gfx/VisualizationData/Medical/Spine/C-Spine/postop_tex_smooth.obj
+./install_linux/bin/MeshViewer /gpfs/data/dhl/gfx/VisualizationData/Medical/Spine/C-Spine/postop_tex_smooth.obj
