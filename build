@@ -7,3 +7,5 @@ make install
 cd $G/import/vrui/src/ExamplePrograms
 make
 make install
+cd $G/import/3dvisualizer
+make all
