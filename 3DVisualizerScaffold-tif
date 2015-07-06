@@ -1,0 +1,2 @@
+#!/bin/bash
+./install_linux/bin/3DVisualizer -palette /gpfs/data/dhl/gfx/VisualizationData/Biological/TissueScaffold/TeaScaffold/Tea-FiberAndBundle.pal -class ImageStack /gpfs/data/dhl/gfx/VisualizationData/Biological/TissueScaffold/TeaScaffold/teascaffold-tif.stack 
