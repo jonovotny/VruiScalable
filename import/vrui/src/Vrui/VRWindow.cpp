@@ -2259,6 +2259,12 @@ void VRWindow::draw(void)
 	#ifdef USE_SCALABLE
 	float tile_distance = 8.0;
 	Point eyePos_mono, eyePos_left, eyePos_right;
+	double tl[3], tr[3], bl[3], br[3], xdiff[3], ydiff[3], width, height;
+	Point origin;
+	Vector horizontalAxis;
+	Vector verticalAxis;
+	ONTransform::Rotation rot;
+	ONTransform transform;
 	#endif
 	switch(windowType)
 		{
@@ -2267,6 +2273,7 @@ void VRWindow::draw(void)
 			#ifdef USE_SCALABLE
 			eyePos_mono = viewers[0]->getEyePosition(Viewer::MONO);
 			EasyBlendSDK_SetEyepoint(gMSDK,eyePos_mono[0],eyePos_mono[1],eyePos_mono[2]);
+			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_right[0],eyePos_right[1],eyePos_right[2],tile_distance);
 			ScalableSetEye(false);
 
 			#endif
@@ -2282,6 +2289,7 @@ void VRWindow::draw(void)
 			#ifdef USE_SCALABLE
 			eyePos_left = viewers[0]->getEyePosition(Viewer::LEFT);
 			EasyBlendSDK_SetEyepoint(gMSDK_left,eyePos_left[0],eyePos_left[1],eyePos_left[2]);
+			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_right[0],eyePos_right[1],eyePos_right[2],tile_distance);
 			ScalableSetEye(true);
 
 			#endif
@@ -2312,10 +2320,44 @@ void VRWindow::draw(void)
 			/* Render left-eye view: */
 			#ifdef USE_SCALABLE
 			eyePos_left = viewers[0]->getEyePosition(Viewer::LEFT);
+			for(int i = 0; i < 3; i++)
+			{
+				eyePos_left[i] *= 3.2808399;
+			}
 			EasyBlendSDK_SetEyepoint(gMSDK_left,eyePos_left[0],eyePos_left[1],eyePos_left[2]);
-			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_left[0],eyePos_left[1],eyePos_left[2],tile_distance);
-			ScalableSetEye(true);
-
+			//EasyBlendSDK_SetEyepoint(gMSDK_left,0,0,0);
+			//ScalableSetEye(true);
+			getTopLeft(tl[0], tl[1], tl[2], true);
+			getTopRight(tr[0], tr[1], tr[2], true);
+			getBotLeft(bl[0], bl[1], bl[2], true);
+			getBotRight(br[0], br[1], br[2], true);
+			/*
+			for(int i = 0; i < 3; i++)
+			{
+				tl[i] *= 3.2808399;
+				tr[i] *= 3.2808399;
+				bl[i] *= 3.2808399;
+				br[i] *= 3.2808399;
+			}
+			*/
+			origin = Point(bl[0], bl[1], bl[2]);
+			for(int i = 0; i < 3; i++)
+			{
+				xdiff[i] = br[i] - bl[i];
+				ydiff[i] = tl[i] - bl[i];
+			}
+			width = sqrt(pow(xdiff[0], 2) + pow(xdiff[1], 2) + pow(xdiff[2], 2));
+			height = sqrt(pow(ydiff[0], 2) + pow(ydiff[1], 2) + pow(ydiff[2], 2));
+			horizontalAxis = Vector(xdiff[0], xdiff[1], xdiff[2]);
+			verticalAxis = Vector(ydiff[0], ydiff[1], ydiff[2]);
+			rot = ONTransform::Rotation::fromBaseVectors(horizontalAxis,verticalAxis);
+			screens[0] -> getScreenTransformation() = ONTransform(origin-Point::origin,rot);
+			//transform = ONTransform(origin-Point::origin,rot);
+			//transform = screens[0] -> getScreenTransformation();
+			//screens[0] -> setTransform(transform);
+			screens[0] -> setSize(width, height);
+			//screens[0] -> resetScreenTransform();
+			//screens[0] -> setScreenTransform();
 			#endif
 			glDrawBuffer(GL_BACK_LEFT);
 			displayState->eyeIndex=0;
@@ -2327,10 +2369,48 @@ void VRWindow::draw(void)
 			/* Render right-eye view: */
 			#ifdef USE_SCALABLE
 			eyePos_right = viewers[0]->getEyePosition(Viewer::RIGHT);
+			for(int i = 0; i < 3; i++)
+			{
+				eyePos_right[i] *= 3.2808399;
+			}
 			EasyBlendSDK_SetEyepoint(gMSDK_right,eyePos_right[0],eyePos_right[1],eyePos_right[2]);
-			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_right[0],eyePos_right[1],eyePos_right[2],tile_distance);
-			ScalableSetEye(false);
-
+			//EasyBlendSDK_SetEyepoint(gMSDK_right,0,0,0);
+			//ScalableSetEye(false);
+			getTopLeft(tl[0], tl[1], tl[2], false);
+			getTopRight(tr[0], tr[1], tr[2], false);
+			getBotLeft(bl[0], bl[1], bl[2], false);
+			getBotRight(br[0], br[1], br[2], false);
+			/*
+			for(int i = 0; i < 3; i++)
+			{
+				tl[i] *= 3.2808399;
+				tr[i] *= 3.2808399;
+				bl[i] *= 3.2808399;
+				br[i] *= 3.2808399;
+			}
+			*/
+			origin = Point(bl[0], bl[1], bl[2]);
+			for(int i = 0; i < 3; i++)
+			{
+				xdiff[i] = br[i] - bl[i];
+				ydiff[i] = tl[i] - bl[i];
+			}
+			width = sqrt(pow(xdiff[0], 2) + pow(xdiff[1], 2) + pow(xdiff[2], 2));
+			height = sqrt(pow(ydiff[0], 2) + pow(ydiff[1], 2) + pow(ydiff[2], 2));
+			horizontalAxis = Vector(xdiff[0], xdiff[1], xdiff[2]);
+			verticalAxis = Vector(ydiff[0], ydiff[1], ydiff[2]);
+			rot = ONTransform::Rotation::fromBaseVectors(horizontalAxis,verticalAxis);
+			screens[1] -> getScreenTransformation() = ONTransform(origin-Point::origin,rot);
+			//transform = ONTransform(origin-Point::origin,rot);
+			//transform = screens[1] -> getScreenTransformation();
+			//std::cout << "Old: " << screens[1] -> getScreenTransformation().getTranslation()[1] << ", " << screens[1] -> getScreenTransformation().getTranslation()[1] << ", " << screens[1] -> getScreenTransformation().getTranslation()[2] << std::endl;
+			//std::cout << "   : " << screens[1] -> getScreenTransformation().getRotation().getQuaternion()[0] << ", " << screens[1] -> getScreenTransformation().getRotation().getQuaternion()[1] << ", " << screens[1] -> getScreenTransformation().getRotation().getQuaternion()[2] << ", " << screens[1] -> getScreenTransformation().getRotation().getQuaternion()[3] << std::endl;
+			//std::cout << "New: " << transform.getTranslation()[0] << ", " << transform.getTranslation()[1] << ", " << transform.getTranslation()[2] << std::endl;
+			//std::cout << "   : " << transform.getRotation().getQuaternion()[0] << ", " << transform.getRotation().getQuaternion()[1] << ", " << transform.getRotation().getQuaternion()[2] << ", " << transform.getRotation().getQuaternion()[2] << std::endl;
+			//screens[1] -> setTransform(transform);
+			screens[1] -> setSize(width, height);
+			//screens[1] -> resetScreenTransform();
+			//screens[1] -> setScreenTransform();
 			#endif
 			glDrawBuffer(GL_BACK_RIGHT);
 			displayState->eyeIndex=1;
