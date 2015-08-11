@@ -1,2 +1,2 @@
 #!/bin/bash
-./install_linux/bin/MeshViewer /gpfs/data/dhl/gfx/VisualizationData/Medical/Body/*.obj
+./install_linux/bin/MeshViewer /gpfs/data/dhl/gfx/VisualizationData/Surfaces/Medical/Body/*.obj

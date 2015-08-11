@@ -1,2 +1,2 @@
 #!/bin/bash
-./install_linux/bin/MeshViewer /gpfs/data/dhl/gfx/VisualizationData/Biological/BeetleTrachea/Pterostichus/Pterostichus2-1.obj
+./install_linux/bin/MeshViewer /gpfs/data/dhl/gfx/VisualizationData/Surfaces/Biological/PterostichusTrachea/Pterostichus2-1.obj
