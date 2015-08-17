@@ -35,7 +35,7 @@ Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #ifdef USE_SCALABLE
 #define _EASYBLENDSDK_LINUX
-#include "Scalable.h"
+#include "EasyBlendSDK.h"
 #endif
 
 /* Forward declarations: */
@@ -147,9 +147,34 @@ class VRWindow:public GLWindow
 	std::string screenshotImageFileName; // Name of the image file into which to save the next screen shot
 	MovieSaver* movieSaver; // Pointer to a movie saver object if the window is supposed to write contents to a movie
 
+	#ifdef USE_SCALABLE 
+	EasyBlendSDK_Mesh *gMSDK_left;
+	EasyBlendSDK_Mesh *gMSDK_right;
+	EasyBlendSDK_Frustum Frustum_left;
+	EasyBlendSDK_Frustum Frustum_right;
+	EasyBlendSDKError msdkErr;
+	bool useScalable;
+	double LookVec[3];
+	#endif
+
 	/* Private methods: */
 	void render(const GLWindow::WindowPos& viewportPos,int screenIndex,const Point& eye);
-	
+	#ifdef USE_SCALABLE
+	void ScalableSetView0(double, double, double, bool left=false);
+
+	void ScalableInit(const char* ScalableMesh);
+	void ScalableClose();
+	void ScalablePreSwap(bool left=false);
+
+	void computeTileCornerPoint(double xang, double yang, double &x, double &y, double &z, bool left);
+	void getTopLeft(double &x, double &y, double &z, bool left);
+	void getTopRight(double &x, double &y, double &z, bool left);
+	void getBotLeft(double &x, double &y, double &z, bool left);
+	void getBotRight(double &x, double &y, double &z, bool left);
+
+	void ScalableSetEye(bool left=false);
+	#endif
+
 	/* Constructors and destructors: */
 	public:
 	static GLContext* createContext(const WindowProperties& properties,const Misc::ConfigurationFileSection& configFileSection); // Creates an OpenGL context based on settings from the given window properties and configuration file section

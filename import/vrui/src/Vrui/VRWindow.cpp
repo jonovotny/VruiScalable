@@ -633,6 +633,189 @@ void VRWindow::render(const GLWindow::WindowPos& viewportPos,int screenIndex,con
 		}
 	}
 
+#ifdef USE_SCALABLE
+void VRWindow::ScalableInit(const char* ScalableMesh) {
+	gMSDK_left = new EasyBlendSDK_Mesh;
+	gMSDK_right = new EasyBlendSDK_Mesh;
+
+	useScalable = true;
+	LookVec[0] = 0;  LookVec[1] = 0;  LookVec[2] = -8;
+
+	msdkErr = EasyBlendSDK_Initialize(ScalableMesh, gMSDK_left );
+	if ( msdkErr != EasyBlendSDK_ERR_S_OK )
+	{
+		std::cout << "Error on left Init: " << EasyBlendSDK_GetErrorMessage(msdkErr) << std::endl;
+		std::cout << "File is: " << ScalableMesh <<std::endl;
+		useScalable = false;
+		return;
+	}
+
+	msdkErr = EasyBlendSDK_Initialize(ScalableMesh, gMSDK_right );
+	if ( msdkErr != EasyBlendSDK_ERR_S_OK )
+	{
+		std::cout << "Error on right Init: " << EasyBlendSDK_GetErrorMessage(msdkErr) << std::endl;
+		std::cout << "File is: " << ScalableMesh <<std::endl;
+		useScalable = false;
+		return;
+	}
+
+	// Expecting a projective mesh
+	if (gMSDK_left->Projection != EasyBlendSDK_PROJECTION_Perspective)
+	{
+		std::cout << "Expected projective mesh for left eye" << std::endl;
+		useScalable = false;
+		return;
+	}
+
+	if (gMSDK_right->Projection != EasyBlendSDK_PROJECTION_Perspective)
+	{
+		std::cout << "Expected projective mesh for right eye" << std::endl;
+		useScalable = false;
+		return;
+	}
+
+	EasyBlendSDK_SetInputReadBuffer(gMSDK_left,  GL_BACK_LEFT);
+	EasyBlendSDK_SetOutputDrawBuffer(gMSDK_left,  GL_BACK_LEFT);
+
+	EasyBlendSDK_SetInputReadBuffer(gMSDK_right,  GL_BACK_RIGHT);
+	EasyBlendSDK_SetOutputDrawBuffer(gMSDK_right, GL_BACK_RIGHT);
+}
+
+void VRWindow::ScalablePreSwap(bool left) {
+	if (useScalable) {
+		glFlush();
+		if(left){
+			EasyBlendSDK_TransformInputToOutput(gMSDK_left);
+		}else{
+			EasyBlendSDK_TransformInputToOutput(gMSDK_right);
+		}
+		glFlush();
+	}
+}
+
+void VRWindow::ScalableSetEye(bool left) {
+	if (left)
+		Frustum_left= gMSDK_left->Frustum;
+	else
+		Frustum_right= gMSDK_right->Frustum;
+}
+
+void VRWindow::ScalableSetView0(double gEyeX, double gEyeY, double gEyeZ, bool left)
+{
+	if (!useScalable)
+		return;
+
+	EasyBlendSDKError err;
+
+	if (left)
+		err = EasyBlendSDK_SetEyepoint(gMSDK_left,gEyeX,gEyeY,gEyeZ);
+	else
+		err = EasyBlendSDK_SetEyepoint(gMSDK_right,gEyeX,gEyeY,gEyeZ);
+	
+	if ( err != EasyBlendSDK_ERR_S_OK ) {
+		std::cout << "Error on Setting EyePoint: " << EasyBlendSDK_GetErrorMessage(err) << std::endl;
+	}
+}
+
+void rotateVec(double angle, double axisX, double axisY, double axisZ, double &vecX, double &vecY,      double &vecZ)
+{
+	double c = cos(angle);
+	double s = sin(angle);
+	double t = 1.0 - c;
+
+	double m00 = c + axisX*axisX*t;
+	double m11 = c + axisY*axisY*t;
+	double m22 = c + axisZ*axisZ*t;
+
+	double tmp1 = axisX*axisY*t;
+	double tmp2 = axisZ*s;
+	double m10 = tmp1 + tmp2;
+	double m01 = tmp1 - tmp2;
+	tmp1 = axisX*axisZ*t;
+	tmp2 = axisY*s;
+	double m20 = tmp1 - tmp2;
+	double m02 = tmp1 + tmp2;
+	tmp1 = axisY*axisZ*t;
+	tmp2 = axisX*s;
+	double m21 = tmp1 + tmp2;
+	double m12 = tmp1 - tmp2;
+
+	tmp1 = vecX;
+	tmp2 = vecY;
+	double tmp3 = vecZ;
+
+	vecX = m00 * tmp1 + m01 * tmp2 + m02 * tmp3;
+	vecY = m10 * tmp1 + m11 * tmp2 + m12 * tmp3;
+	vecZ = m20 * tmp1 + m21 * tmp2 + m22 * tmp3;
+}
+
+void VRWindow::computeTileCornerPoint(double xang, double yang, double &x, double &y, double &z, bool left)
+{
+	const double deg2rad = M_PI/180.0;
+
+	x = -tan(deg2rad * xang);
+	y = -tan(deg2rad * yang);
+	z = 1.0f;
+
+	if(left){
+		rotateVec(-deg2rad*(Frustum_left.ViewAngleA), 0, 0, 1, x, y, z);
+		rotateVec(-deg2rad*(Frustum_left.ViewAngleB), 0, 1, 0, x, y, z);
+		rotateVec(-deg2rad*(Frustum_left.ViewAngleC + 90), 1, 0, 0, x, y, z);
+	}else{
+		rotateVec(-deg2rad*(Frustum_right.ViewAngleA), 0, 0, 1, x, y, z);
+		rotateVec(-deg2rad*(Frustum_right.ViewAngleB), 0, 1, 0, x, y, z);
+		rotateVec(-deg2rad*(Frustum_right.ViewAngleC + 90), 1, 0, 0, x, y, z);
+	}
+}
+
+void VRWindow::getTopLeft(double &x, double &y, double &z, bool left) {
+	if(left){
+		computeTileCornerPoint(Frustum_left.LeftAngle, Frustum_left.TopAngle, x, y, z, left);
+	}else{
+		computeTileCornerPoint(Frustum_right.LeftAngle, Frustum_right.TopAngle, x, y, z, left);
+	}
+}
+
+void VRWindow::getTopRight(double &x, double &y, double &z, bool left) {
+	if(left){ 
+		computeTileCornerPoint(Frustum_left.RightAngle, Frustum_left.TopAngle, x, y, z, left);
+	}else{
+		computeTileCornerPoint(Frustum_right.RightAngle, Frustum_right.TopAngle, x, y, z, left);
+	}
+}
+
+void VRWindow::getBotLeft(double &x, double &y, double &z, bool left) {
+	if(left){
+		computeTileCornerPoint(Frustum_left.LeftAngle, Frustum_left.BottomAngle, x, y, z, left); 
+	}else{
+		computeTileCornerPoint(Frustum_right.LeftAngle, Frustum_right.BottomAngle, x, y, z, left);
+	}
+}
+
+void VRWindow::getBotRight(double &x, double &y, double &z, bool left) {
+	if(left){
+		computeTileCornerPoint(Frustum_left.RightAngle, Frustum_left.BottomAngle, x, y, z, left);
+	}else{
+		computeTileCornerPoint(Frustum_right.RightAngle, Frustum_right.BottomAngle, x, y, z, left);
+	}
+}
+
+void VRWindow::ScalableClose() {
+	msdkErr = EasyBlendSDK_Uninitialize( gMSDK_left );
+	if ( msdkErr != EasyBlendSDK_ERR_S_OK )
+	{
+		std::cout << "There was error uninitializing " << msdkErr << " " << EasyBlendSDK_GetErrorMessage(msdkErr) << std::endl;
+	}
+	msdkErr = EasyBlendSDK_Uninitialize( gMSDK_right );
+	if ( msdkErr != EasyBlendSDK_ERR_S_OK )
+	{
+		std::cout << "There was error uninitializing " << msdkErr << " " << EasyBlendSDK_GetErrorMessage(msdkErr) << std::endl;
+	}
+	delete gMSDK_left;
+	delete gMSDK_right;
+}
+#endif
+
 GLContext* VRWindow::createContext(const WindowProperties& properties,const Misc::ConfigurationFileSection& configFileSection)
 	{
 	/* Create a list of desired visual properties: */
@@ -1125,11 +1308,11 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 	std::string scalablePOL = configFileSection.retrieveString("./scalablePOL");
 
 	ScalableInit(scalablePOL.c_str());
-	/*
-	EasyBlendSDKError msdkErr;
-	EasyBlendSDKError msdkErr_left;
-	EasyBlendSDKError msdkErr_right;
 	
+//	EasyBlendSDKError msdkErr;
+//	EasyBlendSDKError msdkErr_left;
+//	EasyBlendSDKError msdkErr_right;
+/*	
 	switch(windowType)
 	{
 		case MONO:
@@ -1145,26 +1328,30 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 			break;
 
 		case QUADBUFFER_STEREO:
+*/
+	/*
 			gMSDK_left = new EasyBlendSDK_Mesh;
-			msdkErr_left = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK_left);
+			msdkErr_left = EasyBlendSDK_Initialize(scalablePOL.c_str(), gMSDK_left);
 			if(msdkErr_left != EasyBlendSDK_ERR_S_OK)
 			{
 				std::cout << "Error on Left EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr_left) << std::endl;
-				std::cout << "File is: " << POLfileName.c_str() << std::endl;
+				std::cout << "File is: " << scalablePOL.c_str() << std::endl;
 			}
 
 			gMSDK_right = new EasyBlendSDK_Mesh;
-			msdkErr_right = EasyBlendSDK_Initialize(POLfileName.c_str(), gMSDK_right);
+			msdkErr_right = EasyBlendSDK_Initialize(scalablePOL.c_str(), gMSDK_right);
 			if(msdkErr_right != EasyBlendSDK_ERR_S_OK)
 			{
 				std::cout << "Error on Right EasyBlendSDK_Initialize: " << EasyBlendSDK_GetErrorMessage(msdkErr_right) << std::endl;
-				std::cout << "File is: " << POLfileName.c_str() << std::endl;
+				std::cout << "File is: " << scalablePOL.c_str() << std::endl;
 			}
-			break;
-	}
-
+			*/
+//			break;
+//	}
+/*
 	switch(windowType)
 	{
+		
 		case MONO:
 		case LEFT:
 		case RIGHT:
@@ -1173,14 +1360,15 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 			break;
 
 		case QUADBUFFER_STEREO:
-			EasyBlendSDK_SetInputReadBuffer(gMSDK_left, GL_BACK_LEFT);
-			EasyBlendSDK_SetOutputDrawBuffer(gMSDK_left,  GL_BACK_LEFT);
+		*/
+		//	EasyBlendSDK_SetInputReadBuffer(gMSDK_left, GL_BACK_LEFT);
+		//	EasyBlendSDK_SetOutputDrawBuffer(gMSDK_left,  GL_BACK_LEFT);
 
-			EasyBlendSDK_SetInputReadBuffer(gMSDK_right, GL_BACK_RIGHT);
-			EasyBlendSDK_SetOutputDrawBuffer(gMSDK_right,  GL_BACK_RIGHT);
-			break;
-	}
-	*/
+		//	EasyBlendSDK_SetInputReadBuffer(gMSDK_right, GL_BACK_RIGHT);
+		//	EasyBlendSDK_SetOutputDrawBuffer(gMSDK_right,  GL_BACK_RIGHT);
+			//break;
+//	}
+	
 	#endif
 
 	/* Check if the window is supposed to perform post-rendering lens distortion correction: */
@@ -1565,7 +1753,7 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 VRWindow::~VRWindow(void)
 	{
 	#ifdef USE_SCALABLE
-	ScalableClose();
+	//ScalableClose();
 	#endif
 	delete movieSaver;
 	}
@@ -2269,8 +2457,8 @@ void VRWindow::draw(void)
 	Vector horizontalAxis;
 	Vector verticalAxis;
 	ONTransform::Rotation rot;
-	ONTransform transform;
-	float factor = 3.2808399;//meters to feet
+	//ONTransform transform;
+	//float factor = 3.2808399;//meters to feet
 	#endif
 	switch(windowType)
 		{
@@ -2312,7 +2500,7 @@ void VRWindow::draw(void)
 			//eyePos_right = viewers[0]->getEyePosition(Viewer::RIGHT);
 			//EasyBlendSDK_SetEyepoint(gMSDK_right,eyePos_right[0],eyePos_right[1],eyePos_right[2]);
 			//EasyBlendSDK_GetCaveAppTileCorners(gMSDK->Frustum,eyePos_right[0],eyePos_right[1],eyePos_right[2],tile_distance);
-			ScalableSetEye(false);
+			//ScalableSetEye(false);
 
 			#endif
 			glDrawBuffer(GL_BACK);
@@ -2326,66 +2514,24 @@ void VRWindow::draw(void)
 			/* Render left-eye view: */
 			#ifdef USE_SCALABLE
 			eyePos_left = viewers[0]->getEyePosition(Viewer::LEFT);
-			//std::cout << eyePos_left[0] << ", " << eyePos_left[1] << ", " << eyePos_left[2] << std::endl;
-			/*
-			for(int i = 0; i < 3; i++)
-			{
-				eyePos_left[i] /= factor;
-			}
-			*/
-			//eyePos_left[0] *= -1;
-			//eyePos_left[1] *= -1;
-			
 			ScalableSetEye(true);
 			ScalableSetView0(eyePos_left[0], -eyePos_left[1], -eyePos_left[2], true);
-			//EasyBlendSDK_SetEyepoint(gMSDK_left,eyePos_left[0],eyePos_left[1],eyePos_left[2]);
-			//EasyBlendSDK_SetEyepoint(gMSDK_left,0,0,0);
-			//ScalableSetEye(true);
 			getTopLeft(tl[0], tl[1], tl[2], true);
 			getTopRight(tr[0], tr[1], tr[2], true);
 			getBotLeft(bl[0], bl[1], bl[2], true);
 			getBotRight(br[0], br[1], br[2], true);
-			//std::cout << screens[0] -> getName() << ": (" << tl[0] << ", " << tl[1] << ", " << tl[2] << ") (" << tr[0] << ", " << tr[1] << ", " << tr[2] << ") (" << br[0] << ", " << br[1] << ", " << br[2] << ") (" << bl[0] << ", " << bl[1] << ", " << bl[2] << ")" << std::endl;
-			/*
-			for(int i = 0; i < 3; i++)
-			{
-				tl[i] *= factor;
-				tr[i] *= factor;
-				bl[i] *= factor;
-				br[i] *= factor;
-			}
-			*/
-			/*
-			for(int i = 0; i < 2; i++)
-			{
-				tl[i] *= -1;
-				tr[i] *= -1;
-				bl[i] *= -1;
-				br[i] *= -1;
-			}
-			*/
 			origin = Point(bl[0], bl[1], bl[2]);
 			for(int i = 0; i < 3; i++)
 			{
 				xdiff[i] = br[i] - bl[i];
 				ydiff[i] = tl[i] - bl[i];
 			}
-			//std::cout << "(" << xdiff[0] << ", " << xdiff[1] << ", " << xdiff[2] << ") (" << ydiff[0] << ", " << ydiff[1] << ", " << ydiff[2] << ")" << std::endl;
 			width = sqrt(pow(xdiff[0], 2) + pow(xdiff[1], 2) + pow(xdiff[2], 2));
 			height = sqrt(pow(ydiff[0], 2) + pow(ydiff[1], 2) + pow(ydiff[2], 2));
 			horizontalAxis = Vector(xdiff[0] / width, xdiff[1] / width, xdiff[2] / width);
 			verticalAxis = Vector(ydiff[0] / height, ydiff[1] / height, ydiff[2] / height);
 			rot = ONTransform::Rotation::fromBaseVectors(horizontalAxis,verticalAxis);
-			/*
-			if(strcmp(screens[0] -> getName(), "screen54") == 0)
-			{
-				std::cout << "(" << screens[0] -> getScreenTransformation().getTranslation()[0] << ", " << screens[0] -> getScreenTransformation().getTranslation()[1] << ", " << screens[0] -> getScreenTransformation().getTranslation()[2] << ")" << std::endl;
-			}
-			*/
 			screens[0] -> getScreenTransformation() = ONTransform(origin-Point::origin,rot);
-			//transform = ONTransform(origin-Point::origin,rot);
-			//transform = screens[0] -> getScreenTransformation();
-			//screens[0] -> setTransform(transform);
 			screens[0] -> setSize(width, height);
 			screens[0] -> resetScreenTransform();
 			screens[0] -> setScreenTransform();
@@ -2395,49 +2541,17 @@ void VRWindow::draw(void)
 			render(windowViewport,0,viewers[0]->getEyePosition(Viewer::LEFT));
 			#ifdef USE_SCALABLE
 			ScalablePreSwap(true);
-			//EasyBlendSDK_TransformInputToOutput(gMSDK_left);
 			#endif
 
 			/* Render right-eye view: */
 			#ifdef USE_SCALABLE
 			eyePos_right = viewers[0]->getEyePosition(Viewer::RIGHT);
-			/*
-			for(int i = 0; i < 3; i++)
-			{
-				eyePos_right[i] /= factor;
-			}
-			*/
-			//eyePos_right[0] *= -1;
-			//eyePos_right[1] *= -1;
-
 			ScalableSetEye(false);
 			ScalableSetView0(eyePos_right[0],-eyePos_right[1],-eyePos_right[2], false);
-			//EasyBlendSDK_SetEyepoint(gMSDK_right,eyePos_right[0],eyePos_right[1],eyePos_right[2]);
-			//EasyBlendSDK_SetEyepoint(gMSDK_right,0,0,0);
-			//ScalableSetEye(false);
 			getTopLeft(tl[0], tl[1], tl[2], false);
 			getTopRight(tr[0], tr[1], tr[2], false);
 			getBotLeft(bl[0], bl[1], bl[2], false);
 			getBotRight(br[0], br[1], br[2], false);
-			
-			/*
-			for(int i = 0; i < 3; i++)
-			{
-				tl[i] *= factor;
-				tr[i] *= factor;
-				bl[i] *= factor;
-				br[i] *= factor;
-			}
-			*/
-			/*
-			for(int i = 0; i < 2; i++)
-			{
-				tl[i] *= -1;
-				tr[i] *= -1;
-				bl[i] *= -1;
-				br[i] *= -1;
-			}
-			*/
 			origin = Point(bl[0], bl[1], bl[2]);
 			for(int i = 0; i < 3; i++)
 			{
@@ -2450,13 +2564,6 @@ void VRWindow::draw(void)
 			verticalAxis = Vector(ydiff[0] / height, ydiff[1] / height, ydiff[2] / height);
 			rot = ONTransform::Rotation::fromBaseVectors(horizontalAxis,verticalAxis);
 			screens[1] -> getScreenTransformation() = ONTransform(origin-Point::origin,rot);
-			//transform = ONTransform(origin-Point::origin,rot);
-			//transform = screens[1] -> getScreenTransformation();
-			//std::cout << "Old: " << screens[1] -> getScreenTransformation().getTranslation()[1] << ", " << screens[1] -> getScreenTransformation().getTranslation()[1] << ", " << screens[1] -> getScreenTransformation().getTranslation()[2] << std::endl;
-			//std::cout << "   : " << screens[1] -> getScreenTransformation().getRotation().getQuaternion()[0] << ", " << screens[1] -> getScreenTransformation().getRotation().getQuaternion()[1] << ", " << screens[1] -> getScreenTransformation().getRotation().getQuaternion()[2] << ", " << screens[1] -> getScreenTransformation().getRotation().getQuaternion()[3] << std::endl;
-			//std::cout << "New: " << transform.getTranslation()[0] << ", " << transform.getTranslation()[1] << ", " << transform.getTranslation()[2] << std::endl;
-			//std::cout << "   : " << transform.getRotation().getQuaternion()[0] << ", " << transform.getRotation().getQuaternion()[1] << ", " << transform.getRotation().getQuaternion()[2] << ", " << transform.getRotation().getQuaternion()[2] << std::endl;
-			//screens[1] -> setTransform(transform);
 			screens[1] -> setSize(width, height);
 			screens[1] -> resetScreenTransform();
 			screens[1] -> setScreenTransform();
@@ -2466,7 +2573,6 @@ void VRWindow::draw(void)
 			render(windowViewport,1,viewers[1]->getEyePosition(Viewer::RIGHT));
 			#ifdef USE_SCALABLE
 			ScalablePreSwap(false);
-			//EasyBlendSDK_TransformInputToOutput(gMSDK_right);
 			#endif
 			break;
 		
