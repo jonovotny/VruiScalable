@@ -345,6 +345,7 @@ void VRWindow::render(const GLWindow::WindowPos& viewportPos,int screenIndex,con
 	double right=(viewports[screenIndex][1]-screenEyePos[0])/screenEyePos[2]*near;
 	double bottom=(viewports[screenIndex][2]-screenEyePos[1])/screenEyePos[2]*near;
 	double top=(viewports[screenIndex][3]-screenEyePos[1])/screenEyePos[2]*near;
+	//std::cout << "r: " << viewports[screenIndex][1] << "\nl: " << viewports[screenIndex][0] << "\nt: " << viewports[screenIndex][3] << "\nb: " << viewports[screenIndex][2] << std::endl;
 	if(lcPolynomialDegree>=0)
 		{
 		/* Apply overscan: */
@@ -1753,7 +1754,7 @@ VRWindow::VRWindow(GLContext* sContext,int sScreen,const char* windowName,const 
 VRWindow::~VRWindow(void)
 	{
 	#ifdef USE_SCALABLE
-	//ScalableClose();
+	ScalableClose();
 	#endif
 	delete movieSaver;
 	}
@@ -2514,12 +2515,28 @@ void VRWindow::draw(void)
 			/* Render left-eye view: */
 			#ifdef USE_SCALABLE
 			eyePos_left = viewers[0]->getEyePosition(Viewer::LEFT);
+			//std::cout << "(" << eyePos_left[0] << ", " << eyePos_left[1] << ", " << eyePos_left[2] << ")" << std::endl;
+			ScalableSetView0(-eyePos_left[0], -eyePos_left[1], eyePos_left[2], true);
+			//ScalableSetView0(0, 0, 0, true);
 			ScalableSetEye(true);
-			ScalableSetView0(eyePos_left[0], -eyePos_left[1], -eyePos_left[2], true);
 			getTopLeft(tl[0], tl[1], tl[2], true);
 			getTopRight(tr[0], tr[1], tr[2], true);
 			getBotLeft(bl[0], bl[1], bl[2], true);
 			getBotRight(br[0], br[1], br[2], true);
+			tl[1] *= -1;
+			tr[1] *= -1;
+			bl[1] *= -1;
+			br[1] *= -1;
+			//std::cout << screens[0] -> getName() << "-left: (" << tl[0] << ", " << tl[1] << ", " << tl[2] << ") (" << tr[0] << ", " << tr[1] << ", " << tr[2] << ") (" << br[0] << ", " << br[1] << ", " << br[2] << ") (" << bl[0] << ", " << bl[1] << ", " << bl[2] << ")" << std::endl;
+			
+			for(int i = 0; i < 3; i++)
+			{
+				bl[i] *= 17.717;
+				br[i] *= 17.717;
+				tl[i] *= 17.717;
+				tr[i] *= 17.717;
+			}
+			
 			origin = Point(bl[0], bl[1], bl[2]);
 			for(int i = 0; i < 3; i++)
 			{
@@ -2528,13 +2545,19 @@ void VRWindow::draw(void)
 			}
 			width = sqrt(pow(xdiff[0], 2) + pow(xdiff[1], 2) + pow(xdiff[2], 2));
 			height = sqrt(pow(ydiff[0], 2) + pow(ydiff[1], 2) + pow(ydiff[2], 2));
-			horizontalAxis = Vector(xdiff[0] / width, xdiff[1] / width, xdiff[2] / width);
-			verticalAxis = Vector(ydiff[0] / height, ydiff[1] / height, ydiff[2] / height);
+			//std::cout << "w: " << width << std::endl << "h: " << height << std::endl;
+			horizontalAxis = Vector(xdiff[0], xdiff[1], xdiff[2]);
+			verticalAxis = Vector(ydiff[0], ydiff[1], ydiff[2]);
 			rot = ONTransform::Rotation::fromBaseVectors(horizontalAxis,verticalAxis);
-			screens[0] -> getScreenTransformation() = ONTransform(origin-Point::origin,rot);
-			screens[0] -> setSize(width, height);
-			screens[0] -> resetScreenTransform();
-			screens[0] -> setScreenTransform();
+			screens[0] -> setTransform(ONTransform(origin-Point::origin,rot));
+			//screens[0] -> setSize(width, height);
+			viewports[0][1] = width;
+			viewports[0][3] = height;
+			//screens[0] -> getScreenTransformation().renormalize();
+			//screens[0] -> resetScreenTransform();
+			//screens[0] -> setScreenTransform();
+			//windowViewport = GLWindow::WindowPos(width,height);
+			//resizeViewport=true;
 			#endif
 			glDrawBuffer(GL_BACK_LEFT);
 			displayState->eyeIndex=0;
@@ -2546,12 +2569,34 @@ void VRWindow::draw(void)
 			/* Render right-eye view: */
 			#ifdef USE_SCALABLE
 			eyePos_right = viewers[0]->getEyePosition(Viewer::RIGHT);
+			//std::cout << "(" << eyePos_right[0] << ", " << eyePos_right[1] << ", " << eyePos_right[2] << ")" << std::endl;
+			ScalableSetView0(-eyePos_right[0],-eyePos_right[1],eyePos_right[2], false);
+			//ScalableSetView0(0, 0, 0, false);
 			ScalableSetEye(false);
-			ScalableSetView0(eyePos_right[0],-eyePos_right[1],-eyePos_right[2], false);
 			getTopLeft(tl[0], tl[1], tl[2], false);
 			getTopRight(tr[0], tr[1], tr[2], false);
 			getBotLeft(bl[0], bl[1], bl[2], false);
 			getBotRight(br[0], br[1], br[2], false);
+			tl[1] *= -1;
+			tr[1] *= -1;
+			bl[1] *= -1;
+			br[1] *= -1;
+			/*
+			if(strcmp(screens[1] -> getName(), "screen51") == 0 || strcmp(screens[1] -> getName(), "screen54") == 0 || strcmp(screens[1] -> getName(), "screen58") == 0)
+			{
+				std::cout << screens[1] -> getName() << " (" << tl[0] << ", " << tl[1] << ", " << tl[2] << ") (" << tr[0] << ", " << tr[1] << ", " << tr[2] << ") (" << br[0] << ", " << br[1] << ", " << br[2] << ") (" << bl[0] << ", " << bl[1] << ", " << bl[2] << ")" << std::endl;
+			}
+			*/
+			//std::cout << screens[1] -> getName() << "-right: (" << tl[0] << ", " << tl[1] << ", " << tl[2] << ") (" << tr[0] << ", " << tr[1] << ", " << tr[2] << ") (" << br[0] << ", " << br[1] << ", " << br[2] << ") (" << bl[0] << ", " << bl[1] << ", " << bl[2] << ")" << std::endl;
+			
+			for(int i = 0; i < 3; i++)
+			{
+				bl[i] *= 17.717;
+				br[i] *= 17.717;
+				tl[i] *= 17.717;
+				tr[i] *= 17.717;
+			}
+			
 			origin = Point(bl[0], bl[1], bl[2]);
 			for(int i = 0; i < 3; i++)
 			{
@@ -2560,13 +2605,28 @@ void VRWindow::draw(void)
 			}
 			width = sqrt(pow(xdiff[0], 2) + pow(xdiff[1], 2) + pow(xdiff[2], 2));
 			height = sqrt(pow(ydiff[0], 2) + pow(ydiff[1], 2) + pow(ydiff[2], 2));
-			horizontalAxis = Vector(xdiff[0] / width, xdiff[1] / width, xdiff[2] / width);
-			verticalAxis = Vector(ydiff[0] / height, ydiff[1] / height, ydiff[2] / height);
+			horizontalAxis = Vector(xdiff[0], xdiff[1], xdiff[2]);
+			verticalAxis = Vector(ydiff[0], ydiff[1], ydiff[2]);
 			rot = ONTransform::Rotation::fromBaseVectors(horizontalAxis,verticalAxis);
-			screens[1] -> getScreenTransformation() = ONTransform(origin-Point::origin,rot);
-			screens[1] -> setSize(width, height);
-			screens[1] -> resetScreenTransform();
-			screens[1] -> setScreenTransform();
+			/*
+			if(strcmp(screens[1] -> getName(), "screen23") == 0 || strcmp(screens[1] -> getName(), "screen25") == 0 || strcmp(screens[1] -> getName(), "screen27") == 0)
+			{
+				std::cout << screens[1] -> getName() << "\norigin (" << origin[0] << ", " << origin[1] << ", " << origin[2] << ")\n" \
+					<< "horizontalAxis (" << horizontalAxis[0] << ", " << horizontalAxis[1] << ", " << horizontalAxis[2] << ")\n" \
+					<< "width " << width << "\n" \
+					<< "verticalAxis (" << verticalAxis[0] << ", " << verticalAxis[1] << ", " << verticalAxis[2] << ")\n" \
+					<< "height " << height << std::endl;
+			}
+			*/
+			screens[1] -> setTransform(ONTransform(origin-Point::origin,rot));
+			//screens[1] -> setSize(width, height);
+			viewports[1][1] = width;
+			viewports[1][3] = height;
+			//screens[1] -> getScreenTransformation().renormalize();
+			//screens[1] -> resetScreenTransform();
+			//screens[1] -> setScreenTransform();
+			//windowViewport = GLWindow::WindowPos(width,height);
+			//resizeViewport=true;
 			#endif
 			glDrawBuffer(GL_BACK_RIGHT);
 			displayState->eyeIndex=1;
