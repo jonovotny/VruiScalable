@@ -2453,13 +2453,14 @@ void VRWindow::draw(void)
 	#ifdef USE_SCALABLE
 	//float tile_distance = 8.0;
 	Point eyePos_mono, eyePos_left, eyePos_right;
+	double scale = 7.717;
 	double tl[3], tr[3], bl[3], br[3], xdiff[3], ydiff[3], width, height;
 	Point origin;
 	Vector horizontalAxis;
 	Vector verticalAxis;
 	ONTransform::Rotation rot;
 	//ONTransform transform;
-	//float factor = 3.2808399;//meters to feet
+	double factor = 3.2808399;//feet in a meter
 	#endif
 	switch(windowType)
 		{
@@ -2515,6 +2516,7 @@ void VRWindow::draw(void)
 			/* Render left-eye view: */
 			#ifdef USE_SCALABLE
 			eyePos_left = viewers[0]->getEyePosition(Viewer::LEFT);
+			std::cout << eyePos_left[0] << std::endl;
 			//std::cout << "(" << eyePos_left[0] << ", " << eyePos_left[1] << ", " << eyePos_left[2] << ")" << std::endl;
 			ScalableSetView0(-eyePos_left[0], -eyePos_left[1], eyePos_left[2], true);
 			//ScalableSetView0(0, 0, 0, true);
@@ -2531,13 +2533,13 @@ void VRWindow::draw(void)
 			
 			for(int i = 0; i < 3; i++)
 			{
-				bl[i] *= 17.717;
-				br[i] *= 17.717;
-				tl[i] *= 17.717;
-				tr[i] *= 17.717;
+				bl[i] *= 7.717;
+				br[i] *= 7.717;
+				tl[i] *= 7.717;
+				tr[i] *= 7.717;
 			}
 			
-			origin = Point(bl[0], bl[1], bl[2]);
+			origin = Point(bl[0] + eyePos_left[0], bl[1] + eyePos_left[1], bl[2] + eyePos_left[2]);
 			for(int i = 0; i < 3; i++)
 			{
 				xdiff[i] = br[i] - bl[i];
@@ -2570,7 +2572,7 @@ void VRWindow::draw(void)
 			#ifdef USE_SCALABLE
 			eyePos_right = viewers[0]->getEyePosition(Viewer::RIGHT);
 			//std::cout << "(" << eyePos_right[0] << ", " << eyePos_right[1] << ", " << eyePos_right[2] << ")" << std::endl;
-			ScalableSetView0(-eyePos_right[0],-eyePos_right[1],eyePos_right[2], false);
+			ScalableSetView0(-eyePos_right[0], -eyePos_right[1], eyePos_right[2], false);
 			//ScalableSetView0(0, 0, 0, false);
 			ScalableSetEye(false);
 			getTopLeft(tl[0], tl[1], tl[2], false);
@@ -2591,13 +2593,23 @@ void VRWindow::draw(void)
 			
 			for(int i = 0; i < 3; i++)
 			{
-				bl[i] *= 17.717;
-				br[i] *= 17.717;
-				tl[i] *= 17.717;
-				tr[i] *= 17.717;
+				bl[i] *= 7.717;
+				br[i] *= 7.717;
+				tl[i] *= 7.717;
+				tr[i] *= 7.717;
 			}
 			
-			origin = Point(bl[0], bl[1], bl[2]);
+			/*
+			if(strcmp(screens[1] -> getName(), "screen58") == 0)
+			{
+				std::cout << "f: (" << bl[0] << ", " << bl[1] << ", " << bl[2] << ")" << std::endl;
+			}
+			else if(strcmp(screens[1] -> getName(), "screen22") == 0)
+			{
+				std::cout << "w: (" << bl[0] << ", " << bl[1] << ", " << bl[2] << ")" << std::endl;
+			}
+			*/
+			origin = Point(bl[0] + eyePos_right[0], bl[1] + eyePos_right[1], bl[2] + eyePos_right[2]);
 			for(int i = 0; i < 3; i++)
 			{
 				xdiff[i] = br[i] - bl[i];
