@@ -1,0 +1,2 @@
+#!/bin/bash
+./install_linux/bin/3DVisualizer -class ImageStack /gpfs/data/dhl/gfx/VisualizationData/Volumes/Medical/Fetus/Sagittal/stack.stack 
