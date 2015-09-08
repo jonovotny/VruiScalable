@@ -34,6 +34,10 @@ Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Vrui/VisletManager.h>
 #include <Vrui/SceneGraphSupport.h>
 
+#include <GL/GLMatrixTemplates.h>
+//#include <Vrui/Viewer.h>
+#include <Vrui/DisplayState.h>
+
 namespace Vrui {
 
 namespace Vislets {
@@ -158,8 +162,16 @@ void SceneGraphViewer::display(GLContextData& contextData) const
 	/* Save OpenGL state: */
 	glPushAttrib(GL_ENABLE_BIT|GL_LIGHTING_BIT|GL_TEXTURE_BIT);
 	
+	/* Virtual Walls */
+	glMultMatrix(getDisplayState(contextData).modelviewPhysical);
+	int eyeIndex = getDisplayState(contextData).eyeIndex;
+	Point monoEyePos = getDisplayState(contextData).viewer->getEyePosition(Viewer::MONO);
+	glTranslate(monoEyePos.getComponents());
+	Vector offset(0.0, -4.2, 0.0);
+	glTranslate(offset.getComponents());
+
 	/* Render the scene graph in navigational or physical space: */
-	renderSceneGraph(root.getPointer(),navigational,contextData);
+	renderSceneGraph(root.getPointer(),false,contextData);
 	
 	glPopAttrib();
 	}
