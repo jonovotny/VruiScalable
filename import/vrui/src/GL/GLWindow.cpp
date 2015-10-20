@@ -64,6 +64,8 @@ void GLWindow::initWindow(const char* windowName,bool decorate)
 	window=XCreateWindow(context->getDisplay(),root,
 	                     windowPos.origin[0],windowPos.origin[1],windowPos.size[0],windowPos.size[1],
 	                     0,context->getDepth(),InputOutput,context->getVisual(),attributeMask,&swa);
+	// Window Bugfix
+	XMoveWindow(context->getDisplay(), window, 0, 0);
 	XSetStandardProperties(context->getDisplay(),window,windowName,windowName,None,0,0,0);
 	
 	if(!decorate)
