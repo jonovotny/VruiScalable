@@ -1,0 +1,4 @@
+#!/bin/bash
+rm ../install_linux/etc/Vrui-3.1/Vrui.cfg
+cp ../install_linux/etc/Vrui-3.1/Vrui_Stereo.cfg ../install_linux/etc/Vrui-3.1/Vrui.cfg
+../install_linux/bin/MeshViewer /gpfs/data/dhl/gfx/VisualizationData/Surfaces/Biological/PterostichusTrachea/Pterostichus2-1.obj -vislet SceneGraphViewer /gpfs/data/dhl/gfx/VisualizationData/Elements/VirtualWalls/FOR270.vrml
