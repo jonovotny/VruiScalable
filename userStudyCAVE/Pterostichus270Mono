@@ -1,4 +1,4 @@
 #!/bin/bash
 rm ../install_linux/etc/Vrui-3.1/Vrui.cfg
 cp ../install_linux/etc/Vrui-3.1/Vrui_Mono.cfg ../install_linux/etc/Vrui-3.1/Vrui.cfg
-../install_linux/bin/MeshViewer ../../Objects/Pterostichus2-1.obj -vislet SceneGraphViewer ../../Walls/FOR270.vrml
+../install_linux/bin/MeshViewer ../../Objects/RotatedPterostichusTrachea/Pterostichus2-1.obj -vislet SceneGraphViewer ../../Walls/FOR270.vrml
