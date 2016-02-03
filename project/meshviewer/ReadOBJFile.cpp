@@ -411,7 +411,7 @@ PolygonModel* readOBJFiles(const std::vector<const char*>& fileNames,MaterialMan
 		std::string baseDirectory(*fnIt,slashPtr);
 		
 		/* Open the input file: */
-		OBJValueSource objFile(Cluster::openFile(multiplexer,*fnIt),*fnIt);
+		OBJValueSource objFile(Cluster::openFile(0,*fnIt),*fnIt);
 		
 		/* Read the file: */
 		MyTesselator tesselator;
