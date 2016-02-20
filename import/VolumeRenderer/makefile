@@ -19,7 +19,7 @@
 ########################################################################
 
 # Set the Vrui installation directory:
-VRUIDIR = $(HOME)/Vrui-1.0
+VRUIDIR = /gpfs/data/dhl/gfx/Vrui
 
 # Set up additional flags for the C++ compiler:
 CFLAGS = 
@@ -27,11 +27,11 @@ CFLAGS =
 # Include the Vrui application makefile fragment:
 ifdef DEBUG
   # Build debug version of the applications, using the debug version of Vrui:
-  include $(VRUIDIR)/etc/Vrui.debug.makeinclude
+  include $(VRUIDIR)/install_linux/share/Vrui-3.1/Vrui.debug.makeinclude
   CFLAGS += -g2 -O0
 else
   # Build release version of the applications, using the release version of Vrui:
-  include $(VRUIDIR)/etc/Vrui.makeinclude
+  include $(VRUIDIR)/install_linux/share/Vrui-3.1/Vrui.makeinclude
   CFLAGS += -g0 -O3
 endif
 

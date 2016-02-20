@@ -1,0 +1,2 @@
+#!/bin/bash
+./install_linux/bin/MeshViewer /gpfs/data/dhl/gfx/VisualizationData/Surfaces/Archaeological/SudanLandscape/CC-9.I.16.obj
