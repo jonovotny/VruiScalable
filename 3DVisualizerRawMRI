@@ -1,0 +1,2 @@
+#!/bin/bash
+./install_linux/bin/3DVisualizer -class ImageStack /gpfs/data/dhl/gfx/VisualizationData/Volumes/Medical/TTTS/2016-04-05/RawMRI/stack.stack
