@@ -66,6 +66,7 @@ class Raycaster:public GLObject
 		int depthSizeLoc; // Location of the depth texture size uniform variable
 		int eyePositionLoc; // Location of the eye position uniform variable
 		int stepSizeLoc; // Location of the step size uniform variable
+		int lightPositionLoc; // Location of the light position uniform variable
 		
 		/* Constructors and destructors: */
 		DataItem(void);

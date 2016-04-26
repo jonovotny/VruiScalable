@@ -37,6 +37,8 @@ uniform float gridSize;
 uniform float gridWidth;
 uniform int lightMode;
 
+uniform vec3 lightPosition;
+
 
 vec3 blinn_phong(vec3 N, vec3 V, vec3 L, int light)
 {
@@ -152,8 +154,8 @@ void main()
 				vec3 gradient = -vec3(gradX, gradY, gradZ);
 				vec3 normGradient = normalize(gradient);
 				float magnitude = length(gradient);
-				//vec3 L = normalize(gl_LightSource[1].position.xyz - samplePos/mcScale);
-				vec3 L = normalize(mcDir);
+				vec3 L = normalize(samplePos/mcScale - lightPosition);
+				//vec3 L = normalize(mcDir);
 				vol.rgb = vol.rgb * blinn_phong(normGradient,normalize(mcDir),L,0);
 				}
 

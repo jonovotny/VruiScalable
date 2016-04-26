@@ -184,6 +184,8 @@ void Raycaster::initShader(Raycaster::DataItem* dataItem) const
 	
 	dataItem->eyePositionLoc=dataItem->shader.getUniformLocation("eyePosition");
 	dataItem->stepSizeLoc=dataItem->shader.getUniformLocation("stepSize");
+	
+	dataItem->lightPositionLoc=dataItem->shader.getUniformLocation("lightPosition");
 	}
 
 void Raycaster::bindShader(const Raycaster::PTransform& pmv,const Raycaster::PTransform& mv,Raycaster::DataItem* dataItem) const
@@ -209,6 +211,12 @@ void Raycaster::bindShader(const Raycaster::PTransform& pmv,const Raycaster::PTr
 	
 	/* Set the sampling step size: */
 	glUniform1fARB(dataItem->stepSizeLoc,stepSize*cellSize);
+	
+	/* Set the light position in model coordinates */
+	GLfloat lightPos[] = {0.0, 0.0, 0.0, 0.0};
+	glGetLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+	Point light=mv.inverseTransform(PTransform::HVector(lightPos[0], lightPos[1], lightPos[2], lightPos[3])).toPoint();
+	glUniform3fvARB(dataItem->lightPositionLoc,1,light.getComponents());
 	}
 
 void Raycaster::unbindShader(Raycaster::DataItem* dataItem) const
