@@ -278,13 +278,13 @@ void SketchingTool::frame(void)
 		if(Geometry::sqrDist(currentPoint,lastPoint)>=Math::sqr(factory->detailSize*invNav.getScaling()))
 			{
 			/* Append the current dragging point to the curve: */
-			Curve::ControlPoint cp;
-			cp.pos=currentPoint;
-			cp.t=getApplicationTime();
-			currentCurve->controlPoints.push_back(cp);
+			//Curve::ControlPoint cp;
+			//cp.pos=currentPoint;
+			//cp.t=getApplicationTime();
+			//currentCurve->controlPoints.push_back(cp);
 			
 			/* Remember the last added point: */
-			lastPoint=currentPoint;
+			//lastPoint=currentPoint;
 			}
 		}
 	}
