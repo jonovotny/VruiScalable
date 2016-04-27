@@ -1,2 +1,2 @@
 #!/bin/bash
-./install_linux/bin/3DVisualizer -class ImageStack /gpfs/data/dhl/gfx/VisualizationData/Volumes/Medical/TTTS/2016-04-05/AlteredMRI/stack.stack
+./install_linux/bin/3DVisualizer -palette /gpfs/data/dhl/gfx/Vrui/SavedPalette0001.pal -class ImageStack /gpfs/data/dhl/gfx/VisualizationData/Volumes/Medical/TTTS/2016-04-05/AlteredMRI/stack.stack
