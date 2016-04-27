@@ -214,6 +214,9 @@ SketchingTool::SketchingTool(const ToolFactory* sFactory,const ToolInputAssignme
 	GLMotif::Button* deleteAllCurvesButton=new GLMotif::Button("DeleteAllCurvesButton",buttonBox,"Delete All Curves");
 	deleteAllCurvesButton->getSelectCallbacks().add(this,&SketchingTool::deleteAllCurvesCallback);
 	
+	GLMotif::Button* deleteLastCurveButton=new GLMotif::Button("DeleteLastCurveButton",buttonBox,"Delete Last Curve");
+	deleteLastCurveButton->getSelectCallbacks().add(this,&SketchingTool::deleteLastCurveCallback);
+	
 	buttonBox->manageChild();
 	
 	controlDialog->manageChild();
@@ -456,6 +459,16 @@ void SketchingTool::deleteAllCurvesCallback(Misc::CallbackData* cbData)
 	for(std::vector<Curve*>::iterator cIt=curves.begin();cIt!=curves.end();++cIt)
 		delete *cIt;
 	curves.clear();
+	}
+
+void SketchingTool::deleteLastCurveCallback(Misc::CallbackData* cbData)
+	{
+	/* Deactivate the tool just in case: */
+	active=false;
+	
+	/* Delete last curve: */
+	if(curves.size() > 0)
+		curves.pop_back();
 	}
 
 }

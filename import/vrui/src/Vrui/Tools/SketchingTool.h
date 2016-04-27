@@ -127,6 +127,7 @@ class SketchingTool:public UtilityTool
 	void saveCurvesCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData);
 	void loadCurvesCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData);
 	void deleteAllCurvesCallback(Misc::CallbackData* cbData);
+	void deleteLastCurveCallback(Misc::CallbackData* cbData);
 	};
 
 }
