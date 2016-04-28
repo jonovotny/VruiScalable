@@ -298,6 +298,7 @@ void SketchingTool::display(GLContextData& contextData) const
 	/* Set up OpenGL state: */
 	glPushAttrib(GL_ENABLE_BIT|GL_LINE_BIT);
 	//glDisable(GL_LIGHTING);
+	glEnable(GL_COLOR_MATERIAL);
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 	
 	/* Go to navigational coordinates: */
