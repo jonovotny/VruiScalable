@@ -32,6 +32,7 @@ Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <GL/gl.h>
 #include <GL/GLColorTemplates.h>
 #include <GL/GLGeometryWrappers.h>
+#include <GL/GLModels.h>
 #include <GL/GLTransformationWrappers.h>
 #include <GLMotif/StyleSheet.h>
 #include <GLMotif/WidgetManager.h>
@@ -296,7 +297,8 @@ void SketchingTool::display(GLContextData& contextData) const
 	{
 	/* Set up OpenGL state: */
 	glPushAttrib(GL_ENABLE_BIT|GL_LINE_BIT);
-	glDisable(GL_LIGHTING);
+	//glDisable(GL_LIGHTING);
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 	
 	/* Go to navigational coordinates: */
 	glMatrixMode(GL_MODELVIEW);
@@ -305,17 +307,44 @@ void SketchingTool::display(GLContextData& contextData) const
 	glMultMatrix(getDisplayState(contextData).modelviewNavigational);
 	
 	/* Render all curves: */
+	float x1, y1, z1, x2, y2, z2, u[3], v[3];
+	float radius, height, angle, axis[3];
 	for(std::vector<Curve*>::const_iterator cIt=curves.begin();cIt!=curves.end();++cIt)
 		{
 		const Curve* curve=*cIt;
-		glLineWidth(curve->lineWidth);
-		glColor(curve->color);
-		glBegin(GL_LINE_STRIP);
-		for(std::vector<Curve::ControlPoint>::const_iterator cpIt=curve->controlPoints.begin();cpIt!=curve->controlPoints.end();++cpIt)
-			glVertex(cpIt->pos);
+		x1 = curve->controlPoints[0].pos[0];
+		y1 = curve->controlPoints[0].pos[1];
+		z1 = curve->controlPoints[0].pos[2];
 		if(active&&curve==currentCurve)
-			glVertex(currentPoint);
-		glEnd();
+			{
+			x2 = currentPoint[0];
+			y2 = currentPoint[1];
+			z2 = currentPoint[2];
+			}
+		else
+			{
+			x2 = curve->controlPoints[1].pos[0];
+			y2 = curve->controlPoints[1].pos[1];
+			z2 = curve->controlPoints[1].pos[2];
+			}
+		radius = curve->lineWidth;
+		height = sqrt(pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2));
+		angle = acos((z2-z1)/height) / M_PI * 180;
+		u[0] = 0;
+		u[1] = 0;
+		u[2] = 1;
+		v[0] = (x2-x1)/height;
+		v[1] = (y2-y1)/height;
+		v[2] = (z2-z1)/height;
+		axis[0] = u[1]*v[2]-u[2]*v[1];
+		axis[1] = u[2]*v[0]-u[0]*v[2];
+		axis[2] = u[0]*v[1]-u[1]*v[0];
+		glPushMatrix();
+		glTranslatef((x2+x1)/2,(y2+y1)/2,(z2+z1)/2);
+		glRotatef(angle,axis[0], axis[1], axis[2]);
+		glColor(curve->color);
+		glDrawCylinder(radius, height, 8);
+		glPopMatrix();
 		}
 	
 	/* Go back to physical coordinates: */
