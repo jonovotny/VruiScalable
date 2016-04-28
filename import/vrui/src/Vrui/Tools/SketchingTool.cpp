@@ -328,7 +328,7 @@ void SketchingTool::display(GLContextData& contextData) const
 			y2 = curve->controlPoints[1].pos[1];
 			z2 = curve->controlPoints[1].pos[2];
 			}
-		radius = curve->lineWidth;
+		radius = curve->lineWidth/2;
 		height = sqrt(pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2));
 		angle = acos((z2-z1)/height) / M_PI * 180;
 		u[0] = 0;
@@ -344,7 +344,7 @@ void SketchingTool::display(GLContextData& contextData) const
 		glTranslatef((x2+x1)/2,(y2+y1)/2,(z2+z1)/2);
 		glRotatef(angle,axis[0], axis[1], axis[2]);
 		glColor(curve->color);
-		glDrawCylinder(radius, height, 8);
+		glDrawCylinder(radius, height, 32);
 		glPopMatrix();
 		}
 	
