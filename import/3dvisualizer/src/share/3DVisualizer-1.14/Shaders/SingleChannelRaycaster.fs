@@ -50,11 +50,11 @@ vec3 blinn_phong(vec3 N, vec3 V, vec3 L, int light)
     float shininess = 50.0;
 
     // diffuse coefficient
-    float diff_coeff = max(dot(L,N),0.0);
+    float diff_coeff = max(abs(dot(L,N)),0.0);
 
     // specular coefficient
     vec3 H = normalize(L+V);
-    float spec_coeff = pow(max(dot(H,N), 0.0), shininess);
+    float spec_coeff = pow(max(abs(dot(H,N)), 0.0), shininess);
     if (diff_coeff <= 0.0) 
         spec_coeff = 0.0;
 
@@ -62,6 +62,18 @@ vec3 blinn_phong(vec3 N, vec3 V, vec3 L, int light)
     return  Ka * gl_LightSource[light].ambient.rgb + 
             Kd * gl_LightSource[light].diffuse.rgb  * diff_coeff + 
             Ks * gl_LightSource[light].specular.rgb * spec_coeff ;
+}
+
+vec3 get_gradient(vec3 samplePos, float gradientStep, vec3 normScale)
+{
+	float gradX = texture3D(volumeSampler,samplePos+(vec3(gradientStep,0,0)*normScale)).a - texture3D(volumeSampler,samplePos+(vec3(-gradientStep,0,0)*normScale)).a;
+	float gradY = texture3D(volumeSampler,samplePos+(vec3(0,gradientStep,0)*normScale)).a - texture3D(volumeSampler,samplePos+(vec3(0,-gradientStep,0)*normScale)).a;
+	float gradZ = texture3D(volumeSampler,samplePos+(vec3(0,0,gradientStep)*normScale)).a - texture3D(volumeSampler,samplePos+(vec3(0,0,-gradientStep)*normScale)).a;
+	return -vec3(gradX, gradY, gradZ);
+}
+
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
 void main()
@@ -98,12 +110,24 @@ void main()
 	vec3 sampleMult=samplePos;
 	vec3 sampleMultMod=samplePos;
 	float gridDist=0.0;
+
+	vec3 gradient = vec3(0.0);
+	vec3 normGradient = vec3(0.0);
+	bool gradCalculated = false; 
+
+	int temp_gridMode = 1;
+	float temp_gridSize = 10.0;
+	float temp_gridWidth = 0.25;
+	int temp_lightMode = 0;
 	
 	if(lambda<lambdaMax)
 		{
-		samplePos+=dcDir*lambda;
+		samplePos+=dcDir*(lambda+rand(gl_FragCoord.xy));
+
 		for(int i=0;i<1500;++i)
 			{
+			gradCalculated = false;
+
 			/* Get the volume data value at the current sample position: */
 			vec4 vol=texture1D(colorMapSampler,texture3D(volumeSampler,samplePos).a);
 			
@@ -114,10 +138,7 @@ void main()
 			
 			/* Identify Grid or Checkerboard Region */
 			/* TODO: plug in uniform variables */
-			int temp_gridMode = 1;
-			float temp_gridSize = 10;
-			float temp_gridWidth = 0.5;
-			int temp_lightMode = 0;
+			
 			
 			sampleMult = samplePos/mcScale;
 			
@@ -125,12 +146,21 @@ void main()
 			/* Line Grid */
 			if (temp_gridMode == 1)
 				{
-				sampleMultMod = mod(sampleMult,temp_gridSize);
+				sampleMultMod = mod(sampleMult+2.5,temp_gridSize);
 				gridDist=min(min(sampleMultMod.x,sampleMultMod.y),sampleMultMod.z);
 				
-				if(gridDist < temp_gridWidth || (temp_gridSize - gridDist) < temp_gridWidth)
+				if(gridDist < temp_gridWidth)
 					{
-						vol.rgb = vol.rgb * 0.5;
+						gradient = get_gradient(samplePos, gradientStep, normScale);
+						normGradient = normalize(gradient);
+						gradCalculated = true;
+
+						vec3 directionalWidth = ((vec3(1.0) - abs(normGradient)) * 0.85 * temp_gridWidth) + 0.15;
+						if (min(directionalWidth, sampleMultMod) != directionalWidth)
+						{
+							vol.rg = vol.rg * 0.5;
+							vol.b = vol.b *0.75;
+						}
 					}
 				}
 			
@@ -148,17 +178,17 @@ void main()
 			
 			if (vol.a > 0.05)
 				{				
-				float gradX = texture3D(volumeSampler,samplePos+(vec3(gradientStep,0,0)*normScale)).a - texture3D(volumeSampler,samplePos+(vec3(-gradientStep,0,0)*normScale)).a;
-				float gradY = texture3D(volumeSampler,samplePos+(vec3(0,gradientStep,0)*normScale)).a - texture3D(volumeSampler,samplePos+(vec3(0,-gradientStep,0)*normScale)).a;
-				float gradZ = texture3D(volumeSampler,samplePos+(vec3(0,0,gradientStep)*normScale)).a - texture3D(volumeSampler,samplePos+(vec3(0,0,-gradientStep)*normScale)).a;
-				vec3 gradient = -vec3(gradX, gradY, gradZ);
-				vec3 normGradient = normalize(gradient);
+				if (!gradCalculated)
+				{
+					gradient = get_gradient(samplePos, gradientStep, normScale);
+					normGradient = normalize(gradient);
+					gradCalculated = true;
+				}
+				
 				float magnitude = length(gradient);
 				vec3 L = normalize(samplePos/mcScale - lightPosition);
-				//vec3 L = normalize(mcDir);
 				vol.rgb = vol.rgb * blinn_phong(normGradient,normalize(mcDir),L,0);
 				}
-
 			
 			/* Accumulate color and opacity: */
 			accum+=vol*(1.0-accum.a);
@@ -166,7 +196,7 @@ void main()
 			/* Bail out when opacity hits 1.0: */
 			if(accum.a>=1.0-1.0/256.0||lambda>=lambdaMax)
 				break;
-			
+
 			/* Advance the sample position: */
 			samplePos+=dcDir;
 			lambda+=1.0;
