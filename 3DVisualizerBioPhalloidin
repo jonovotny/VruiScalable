@@ -1,0 +1,2 @@
+#!/bin/bash
+./install_linux/bin/3DVisualizer -class MultiChannelImageStack -numImages 69 -imageSize 1024 1024 -regionOrigin 0 0 -sampleSpacing 1.0 1.0 2.0 -imageDirectory /users/dhl/data/gfx/VisualizationData/Volumes/Biological/phalloidin-2-28-16 -imageIndexStart 0 -imageIndexStep 1 -color r g b %03d.png
