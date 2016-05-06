@@ -38,6 +38,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <Vrui/Vrui.h>
 #include <Vrui/VRWindow.h>
 #include <Vrui/DisplayState.h>
+#include <Vrui/InputDevice.h>
+#include <Vrui/InputDeviceManager.h>
 
 /************************************
 Methods of class Raycaster::DataItem:
@@ -190,6 +192,10 @@ void Raycaster::initShader(Raycaster::DataItem* dataItem) const
 
 void Raycaster::bindShader(const Raycaster::PTransform& pmv,const Raycaster::PTransform& mv,Raycaster::DataItem* dataItem) const
 	{
+	/* Get cursor position */
+	const Vrui::NavTransform& invNav=Vrui::getInverseNavigationTransformation();
+	Point cursorPos=invNav.transform(Vrui::getInputDeviceManager()->findInputDevice("Wand0")->getPosition());
+
 	/* Set up the data space transformation: */
 	glUniform3fvARB(dataItem->mcScaleLoc,1,dataItem->mcScale);
 	glUniform3fvARB(dataItem->mcOffsetLoc,1,dataItem->mcOffset);
