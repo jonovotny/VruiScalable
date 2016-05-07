@@ -91,6 +91,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include "ElementList.h"
 #include "GLRenderState.h"
 
+#include "TraceTool.h"
+
 /***************************
 Methods of class Visualizer:
 ***************************/
@@ -898,6 +900,10 @@ Visualizer::Visualizer(int& argc,char**& argv,char**& appDefaults)
 			loadElements(*lfnIt,false);
 			}
 		}
+
+	/* Register the custom tool classes with the Vrui tool manager: */
+	Vrui::TraceToolFactory* traceToolFactory=new Vrui::TraceToolFactory(*Vrui::getToolManager());
+	Vrui::getToolManager()->addClass(traceToolFactory,Vrui::TraceToolFactory::factoryDestructor);
 	
 	/* Initialize navigation transformation: */
 	centerDisplayCallback(0);

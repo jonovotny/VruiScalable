@@ -273,6 +273,7 @@ VISUALIZER_SOURCES = $(ABSTRACT_SOURCES) \
                      ColorBar.cpp \
                      ColorMap.cpp \
                      PaletteEditor.cpp \
+					 TraceTool.cpp \
                      Visualizer.cpp
 ifneq ($(USE_SHADERS),0)
   VISUALIZER_SOURCES += TwoSidedSurfaceShader.cpp \
