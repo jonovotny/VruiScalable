@@ -2,7 +2,9 @@
 
 To Build
 --------
+* Open up a shell on login001 or login002
 * Define $G as the root of this cloned repository
+* Load cave, cave-utils/yurt, centos-libs/6.7, cmake/3.2.2, gcc, nvidia-driver, and vrpn modules
 * Run ./build
 
 To Run
