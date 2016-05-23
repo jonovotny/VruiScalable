@@ -1,2 +1,2 @@
 #!/bin/bash
-./install_linux/bin/VRDeviceDaemon
+./install_linux/bin/VRDeviceDaemon  "$@"
